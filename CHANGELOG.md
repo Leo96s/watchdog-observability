@@ -1,3 +1,5 @@
+## v0.5.0 - 2026-02-14
+* feat: Implementado uma base sólida para o backend
 ## v0.4.0 - 2026-02-14
 * feat: creação de sistemas de alertas e integração prometheus
 ## v0.3.0 - 2026-02-14
