@@ -4,7 +4,11 @@ const cors = require("cors");
 const app = express();
 
 const healthRoutes = require("./routes/health.routes");
+const metricsRoutes = require("./routes/metrics.routes");
+
 app.use("/api/health", healthRoutes);
+app.use("/metrics", metricsRoutes);
+
 
 app.use(cors());
 app.use(express.json());
