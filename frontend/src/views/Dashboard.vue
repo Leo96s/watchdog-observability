@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import api from "../services/api.service";
+import socket from "../services/socket.service";
 
 const services = ref([]);
 
-onMounted(async () => {
-  const response = await api.get("/health");
-  services.value = response.data;
+onMounted(() => {
+  socket.on("status-update", (data) => {
+    services.value = data;
+  });
 });
 </script>
 
