@@ -46,7 +46,7 @@ jobs:
             RANGE="$CURRENT_TAG..HEAD"
           fi
 
-          git log --reverse --pretty="%H|%s" $CURRENT_TAG..HEAD > commits.txt
+          git log --reverse --pretty="%H|%s" $RANGE > commits.txt
 
           CREATED_TAGS=0
 
@@ -141,7 +141,7 @@ jobs:
           
           touch CHANGELOG.md RELEASE_NOTES.md
 
-          LOG=$(git log ${{ env.latest_tag }}..HEAD \
+          LOG=$(git log $RANGE \
             --pretty=format:"%s" \
             --no-merges | \
             grep -Ei "^(feat|fix|docs|style|test|ci)(\(.+\))?:|breaking change" || true)
