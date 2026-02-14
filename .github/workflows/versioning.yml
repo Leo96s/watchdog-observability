@@ -22,7 +22,7 @@ jobs:
       # Última tag
       - name: Get latest tag
         run: |
-          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
           echo "latest_tag=$TAG" >> $GITHUB_ENV
 
       - name: Git config
@@ -34,8 +34,17 @@ jobs:
       - name: Replay versions per commit
         run: |
           CURRENT_TAG=${{ env.latest_tag }}
-          VERSION=${CURRENT_TAG#v}
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          if [ "$CURRENT_TAG" = "none" ]; then
+            # Se não existe tag, começamos do 0.0.0 e pegamos TODO o histórico
+            MAJOR=0; MINOR=0; PATCH=0
+            RANGE="HEAD"
+          else
+
+            VERSION=${CURRENT_TAG#v}
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+            RANGE="$CURRENT_TAG..HEAD"
+          fi
 
           git log --reverse --pretty="%H|%s" $CURRENT_TAG..HEAD > commits.txt
 
@@ -69,6 +78,14 @@ jobs:
             fi
 
           done < commits.txt
+
+          # Caso seja o primeiro commit e não siga o padrão Conventional Commits,
+          if [ "$CURRENT_TAG" = "none" ] && [ "$CREATED_TAGS" = "0" ]; then
+             echo "Nenhum commit formatado encontrado. Criando v0.1.0 inicial..."
+             git tag "v0.1.0" HEAD
+             CREATED_TAGS=1
+             MAJOR=0; MINOR=1; PATCH=0
+          fi
 
           git push origin --tags
 
@@ -116,6 +133,12 @@ jobs:
           DATE=$(date +'%Y-%m-%d')
           VERSION=${{ env.new_version }}
 
+          if [ "${{ env.latest_tag }}" = "none" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${{ env.latest_tag }}..HEAD"
+          fi
+          
           touch CHANGELOG.md RELEASE_NOTES.md
 
           LOG=$(git log ${{ env.latest_tag }}..HEAD \
