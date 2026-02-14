@@ -1,19 +1,40 @@
-const { Server } = require("socket.io");
-const endpoints = require("../config/endpoints");
-const { checkEndpoint } = require("../services/healthChecker.service");
+const ServiceStatus = require("../models/serviceStatus.model");
+const { checkService } = require("../services/healthChecker.service");
 
-function initSocket(server) {
-  const io = new Server(server, {
-    cors: { origin: "*" }
-  });
+let interval = null;
+let monitoredServices = new Map();
 
-  setInterval(async () => {
-    const results = await Promise.all(
-      endpoints.map(endpoint => checkEndpoint(endpoint))
-    );
+async function startMonitoring() {
+  console.log("Monitorização iniciada...");
 
-    io.emit("status-update", results);
-  }, 10000);
+  interval = setInterval(async () => {
+    try {
+      const services = await ServiceStatus.findAll();
+
+      console.log(
+        "Serviços carregados para monitorização:",
+        services.map((s) => s.serviceName),
+      );
+
+      for (const service of services) {
+        await checkService(service);
+
+        monitoredServices.set(service.id, service);
+      }
+    } catch (err) {
+      console.log("Erro ao buscar serviços:", err.message);
+    }
+  }, 30000);
+
+  try {
+    const services = await ServiceStatus.findAll();
+    for (const service of services) {
+      await checkService(service);
+      monitoredServices.set(service.id, service);
+    }
+  } catch (err) {
+    console.log("Erro ao carregar serviços na inicialização:", err.message);
+  }
 }
 
-module.exports = { initSocket };
+module.exports = { startMonitoring, monitoredServices };

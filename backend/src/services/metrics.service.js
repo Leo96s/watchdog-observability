@@ -1,20 +1,27 @@
-const client = require("prom-client");
+const ServiceLog = require("../models/serviceLog.model");
+const { Op } = require("sequelize");
 
-const latencyHistogram = new client.Histogram({
-  name: "endpoint_latency_ms",
-  help: "Latência dos endpoints",
-  labelNames: ["service"]
-});
+async function calculateUptime(serviceId, hours = 24) {
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000);
 
-const serviceStatus = new client.Gauge({
-  name: "endpoint_status",
-  help: "Estado do serviço (1 = UP, 0 = DOWN)",
-  labelNames: ["service"]
-});
+  const total = await ServiceLog.count({
+    where: {
+      serviceId,
+      createdAt: { [Op.gte]: since },
+    },
+  });
 
-function updateMetrics(service, statusCode, latency) {
-  latencyHistogram.labels(service).observe(latency);
-  serviceStatus.labels(service).set(statusCode === 200 ? 1 : 0);
+  const up = await ServiceLog.count({
+    where: {
+      serviceId,
+      status: "UP",
+      createdAt: { [Op.gte]: since },
+    },
+  });
+
+  if (total === 0) return 100;
+
+  return ((up / total) * 100).toFixed(2);
 }
 
-module.exports = { updateMetrics, register: client.register };
+module.exports = { calculateUptime };

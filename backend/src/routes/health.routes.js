@@ -1,13 +1,28 @@
 const router = require("express").Router();
-const endpoints = require("../config/endpoints");
-const { checkEndpoint } = require("../services/healthChecker.service");
+const { monitoredServices } = require("../sockets/socket.manager");
 
+// GET /health → devolve o estado atual dos serviços
 router.get("/", async (req, res) => {
-  const results = await Promise.all(
-    endpoints.map(endpoint => checkEndpoint(endpoint))
-  );
+  try {
+    const statusList = [];
 
-  res.json(results);
+    for (const service of monitoredServices.values()) {
+      statusList.push({
+        id: service.id,
+        name: service.serviceName,
+        url: service.url,
+        status: service.status,
+        lastChecked: service.updatedAt, // ou outro campo de timestamp se tiveres
+        responseTime: service.responseTime || null,
+        sslExpiry: service.sslExpiry || null
+      });
+    }
+
+    res.json(statusList);
+  } catch (err) {
+    console.error("Erro ao obter estado dos serviços:", err.message);
+    res.status(500).json({ error: "Erro ao obter estado dos serviços" });
+  }
 });
 
 module.exports = router;

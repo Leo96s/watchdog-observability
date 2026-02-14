@@ -1,17 +1,16 @@
 const axios = require("axios");
 
-let previousStates = {};
-
 async function sendAlert(service, status) {
-  if (previousStates[service] === status) return;
+  if (!process.env.WEBHOOK_URL) return;
 
-  previousStates[service] = status;
-
-  if (!process.env.SLACK_WEBHOOK) return;
-
-  await axios.post(process.env.SLACK_WEBHOOK, {
-    text: `⚠ Serviço ${service} mudou para ${status}`
-  });
+  try {
+    await axios.post(process.env.WEBHOOK_URL, {
+      text: `🚨 Serviço ${service} mudou para ${status}`,
+      content: `🚨 Serviço ${service} mudou para ${status}`
+    });
+  } catch (err) {
+    console.log("Falha ao enviar alerta:", err.response?.status || err.message);
+  }
 }
 
 module.exports = { sendAlert };

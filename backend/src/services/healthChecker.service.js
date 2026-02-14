@@ -1,37 +1,73 @@
 const axios = require("axios");
-const { updateMetrics } = require("./metrics.service");
+const ServiceStatus = require("../models/serviceStatus.model");
+const ServiceLog = require("../models/serviceLog.model");
+const { checkSSL } = require("./sslChecker.service");
 const { sendAlert } = require("./alert.service");
 
-async function checkEndpoint(endpoint) {
-  const start = Date.now();
+let lastKnownState = {};
 
+async function checkService(service) {
+  const start = Date.now();
+  let status = "UP";
+  let responseTime = null;
+  let sslExpiry = null;
+
+  console.log("A verificar serviço:", service.serviceName, service.url);
 
   try {
-    const response = await axios.get(endpoint.url, { timeout: 5000 });
-    const latency = Date.now() - start;
+    const response = await axios.get(service.url, {
+      timeout: 8000,
+      validateStatus: () => true,
+      maxRedirects: 5,
+      headers: {
+        "User-Agent": "Mozilla/5.0 WatchdogMonitor/1.0",
+        "Accept": "*/*",
+        "Connection": "keep-alive"
+      }
+    });
 
-    updateMetrics(endpoint.name, response.status, latency);
-    await sendAlert(endpoint.name, "UP");
+    responseTime = Date.now() - start;
 
-    return {
-      name: endpoint.name,
-      status: "UP",
-      statusCode: response.status,
-      latency
-    };
+    // 5xx = servidor respondeu erro → degradado
+    if (response.status >= 500) {
+      status = "DEGRADED";
+    }
 
-  } catch (error) {
-    
-    updateMetrics(endpoint.name, 500, 0);
-    await sendAlert(endpoint.name, "UP");
+    // SSL check (apenas se HTTPS)
+    if (service.url.startsWith("https")) {
+      try {
+        const sslData = await checkSSL(service.url);
+        sslExpiry = sslData.expiryDate;
+      } catch (err) {
+        console.log("Erro SSL:", err.message);
+        status = "DEGRADED";
+      }
+    }
 
-    return {
-      name: endpoint.name,
-      status: "DOWN",
-      error: error.message
+  } catch (err) {
+    // Falha real de conexão → DOWN
+    status = "DOWN";
+  }
 
-    };
+  // Atualizar estado atual
+  await ServiceStatus.update(
+    { status, responseTime, sslExpiry },
+    { where: { id: service.id } }
+  );
+
+  // Guardar histórico
+  await ServiceLog.create({
+    serviceId: service.id,
+    status,
+    responseTime,
+    sslExpiry
+  });
+
+  // Alertas apenas quando muda
+  if (lastKnownState[service.id] !== status) {
+    await sendAlert(service.serviceName, status);
+    lastKnownState[service.id] = status;
   }
 }
 
-module.exports = { checkEndpoint };
+module.exports = { checkService };
