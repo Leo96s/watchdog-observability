@@ -87,8 +87,6 @@ jobs:
              MAJOR=0; MINOR=1; PATCH=0
           fi
 
-          git push origin --tags
-
           FINAL_VERSION="v$MAJOR.$MINOR.$PATCH"
           echo "new_version=$FINAL_VERSION" >> $GITHUB_ENV
           echo "created_tags=$CREATED_TAGS" >> $GITHUB_ENV
@@ -166,8 +164,20 @@ jobs:
           git add CHANGELOG.md RELEASE_NOTES.md
 
       # Commit automático do bot
-      - name: Commit release updates
+      - name: Commit and Push everything
         if: env.created_tags == '1'
         run: |
+          # 1. Faz commit das alterações nos ficheiros (package.json, changelog)
           git diff --cached --quiet || git commit -m "chore(release): ${{ env.new_version }}"
+          
+          # 2. Empurra o commit para a branch (main/dev)
           git push origin HEAD
+
+          # 3. Tenta empurrar cada tag individualmente
+          # Isso evita que uma tag rejeitada bloqueie todas as outras
+          for tag in $(git tag --points-at HEAD); do
+            git push origin "$tag" || echo "Tag $tag rejeitada (provavelmente contém alteração de workflow). Ignorando..."
+          done
+          
+          # Tenta empurrar as outras tags criadas no replay (opcional)
+          git push origin --tags || echo "Algumas tags foram rejeitadas, mas o processo continuou."
