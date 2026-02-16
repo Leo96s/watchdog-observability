@@ -13,7 +13,7 @@ const serviceUp = new Gauge({
 async function updateMetrics() {
   const services = await ServiceStatus.findAll();
   services.forEach(service => {
-    serviceUp.set({ serviceName: service.name }, service.status === "UP" ? 1 : 0);
+    serviceUp.set({ serviceName: service.serviceName }, service.status === "UP" ? 1 : 0);
   });
 }
 

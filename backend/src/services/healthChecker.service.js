@@ -1,72 +1,71 @@
-const axios = require("axios");
 const ServiceStatus = require("../models/serviceStatus.model");
 const ServiceLog = require("../models/serviceLog.model");
 const { checkSSL } = require("./sslChecker.service");
 const { sendAlert } = require("./alert.service");
-
-let lastKnownState = {};
-
+const { requestDuration, serviceUp } = require("./realTimeMetrics.service");
+const { requestService } = require("./request.service");
+const { hasStateChanged } = require("./alertState.service");
 async function checkService(service) {
   const start = Date.now();
   let status = "UP";
   let responseTime = null;
   let sslExpiry = null;
 
-  console.log("A verificar serviço:", service.serviceName, service.url);
-
   try {
-    const response = await axios.get(service.url, {
-      timeout: 8000,
-      validateStatus: () => true,
-      maxRedirects: 5,
-      headers: {
-        "User-Agent": "Mozilla/5.0 WatchdogMonitor/1.0",
-        "Accept": "*/*",
-        "Connection": "keep-alive"
-      }
-    });
-
+    const res = await requestService(service);
     responseTime = Date.now() - start;
 
-    // 5xx = servidor respondeu erro → degradado
-    if (response.status >= 500) {
-      status = "DEGRADED";
-    }
+    const healthy = service.expectedStatus
+      ? res.status === service.expectedStatus
+      : res.status < 500;
 
-    // SSL check (apenas se HTTPS)
+    if (!healthy) status = "DEGRADED";
+
+    // SSL
     if (service.url.startsWith("https")) {
       try {
         const sslData = await checkSSL(service.url);
         sslExpiry = sslData.expiryDate;
-      } catch (err) {
-        console.log("Erro SSL:", err.message);
+      } catch {
         status = "DEGRADED";
       }
     }
 
+    // METRICS
+    const metricStatus = healthy ? "success" : "error";
+    requestDuration
+      .labels(service.serviceName, metricStatus)
+      .observe(responseTime);
+    serviceUp.labels(service.serviceName).set(healthy ? 1 : 0);
   } catch (err) {
-    // Falha real de conexão → DOWN
-    status = "DOWN";
+    if (err.response && err.response.status === 403) {
+      status = "UP"; // Ou um novo status "LIMITED"
+      console.warn("Rate limit atingido, mas o serviço parece estar vivo.");
+    } else {
+      status = "DOWN";
+    }
+    responseTime = Date.now() - start;
+
+    requestDuration.labels(service.serviceName, "error").observe(responseTime);
+    serviceUp.labels(service.serviceName).set(0);
   }
 
-  // Atualizar estado atual
+  // DB
   await ServiceStatus.update(
     { status, responseTime, sslExpiry },
-    { where: { id: service.id } }
+    { where: { id: service.id } },
   );
 
-  // Guardar histórico
   await ServiceLog.create({
     serviceId: service.id,
     status,
     responseTime,
-    sslExpiry
+    sslExpiry,
   });
 
-  // Alertas apenas quando muda
-  if (lastKnownState[service.id] !== status) {
+  // ALERTA PERSISTENTE
+  if (await hasStateChanged(service.id, status)) {
     await sendAlert(service.serviceName, status);
-    lastKnownState[service.id] = status;
   }
 }
 

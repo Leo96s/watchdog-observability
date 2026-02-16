@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { calculateUptime } = require("../services/metrics.service");
+const { calculateUptime } = require("../services/upTime.service");
 const ServiceStatus = require("../models/serviceStatus.model");
 
 router.get("/metrics", async (req, res) => {

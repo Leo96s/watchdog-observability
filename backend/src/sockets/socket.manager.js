@@ -24,7 +24,7 @@ async function startMonitoring() {
     } catch (err) {
       console.log("Erro ao buscar serviços:", err.message);
     }
-  }, 30000);
+  }, 120000);
 
   try {
     const services = await ServiceStatus.findAll();

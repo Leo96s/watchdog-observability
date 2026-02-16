@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const http = require("node:http");
 const app = require("./app");
 const sequelize = require("./database");

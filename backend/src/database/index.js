@@ -1,4 +1,3 @@
-require('dotenv').config(); // garante que lê o .env
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(
@@ -10,6 +9,9 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT,
     dialect: 'postgres',
     logging: false, // desativa logs SQL, podes mudar para true se quiseres debug
+    retry: {
+      max: 10
+    }
   }
 );
 
