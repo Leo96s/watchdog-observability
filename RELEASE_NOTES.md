@@ -1,3 +1,5 @@
+## v1.0.0 - 2026-02-16
+* BREAKING CHANGE: primeira versão de watchdog funcional
 ## v0.5.0 - 2026-02-14
 * feat: Implementado uma base sólida para o backend
 ## v0.4.0 - 2026-02-14
