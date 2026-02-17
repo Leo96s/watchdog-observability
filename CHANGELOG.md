@@ -1,3 +1,5 @@
+## v1.0.5 - 2026-02-17
+* fix: update render.yaml
 ## v1.0.4 - 2026-02-17
 * fix: update do render.yaml
 ## v1.0.3 - 2026-02-17
