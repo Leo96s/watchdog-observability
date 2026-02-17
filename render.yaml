@@ -1,0 +1,46 @@
+services:
+  # 1. BACKEND (Node.js)
+  - type: web
+    name: watchdog-backend
+    env: docker
+    dockerContext: ./backend # Onde está o Dockerfile do backend
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: watchdog-db
+          property: host
+      - key: DB_USER
+        fromDatabase:
+          name: watchdog-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: watchdog-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: watchdog-db
+          property: database
+      - key: DB_PORT
+        value: 5432
+
+  # 2. FRONTEND (Vue/Vite)
+  - type: web
+    name: watchdog-frontend
+    env: docker
+    dockerContext: ./frontend
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: watchdog-backend
+          property: host
+
+# 3. BASE DE DADOS (PostgreSQL)
+databases:
+  - name: watchdog-db
+    plan: free
