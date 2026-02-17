@@ -1,3 +1,5 @@
+## v1.0.1 - 2026-02-17
+* fix: corrigido uns erros e preparado para deploy
 ## v1.0.0 - 2026-02-16
 * BREAKING CHANGE: primeira versão de watchdog funcional
 ## v0.5.0 - 2026-02-14
