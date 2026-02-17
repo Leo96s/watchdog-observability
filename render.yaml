@@ -4,7 +4,7 @@ services:
     name: watchdog-backend
     env: docker
     dockerContext: ./backend # Onde está o Dockerfile do backend
-    dockerfilePath: ./Dockerfile # O nome do ficheiro dentro da pasta backend
+    dockerfilePath: ./backend/Dockerfile
     plan: free
     envVars:
       - key: NODE_ENV
@@ -33,7 +33,7 @@ services:
     name: watchdog-frontend
     env: docker
     dockerContext: ./frontend
-    dockerfilePath: ./Dockerfile # O nome do ficheiro dentro da pasta backend
+    dockerfilePath: ./frontend/Dockerfile
     plan: free
     envVars:
       - key: VITE_API_URL
