@@ -5,6 +5,14 @@ const { sendAlert } = require("./alert.service");
 const { requestDuration, serviceUp } = require("./realTimeMetrics.service");
 const { requestService } = require("./request.service");
 const { hasStateChanged } = require("./alertState.service");
+
+/**
+ * This service is responsible for performing health checks on the monitored services.
+ * It checks the service's availability, response time, and SSL certificate status (if applicable).
+ * After performing the check, it updates the service's status in the database, logs the result,
+ * updates real-time metrics for Prometheus, and triggers alerts if there is a status change.
+ * @param {*} service 
+ */
 async function checkService(service) {
   const start = Date.now();
   let status = "UP";
@@ -39,8 +47,8 @@ async function checkService(service) {
     serviceUp.labels(service.serviceName).set(healthy ? 1 : 0);
   } catch (err) {
     if (err.response && err.response.status === 403) {
-      status = "UP"; // Ou um novo status "LIMITED"
-      console.warn("Rate limit atingido, mas o serviço parece estar vivo.");
+      status = "UP"; 
+      console.warn("Rate limit hit but service is reachable:", service.url);
     } else {
       status = "DOWN";
     }
@@ -63,7 +71,7 @@ async function checkService(service) {
     sslExpiry,
   });
 
-  // ALERTA PERSISTENTE
+  // Persistent alert state and send alert if status changed
   if (await hasStateChanged(service.id, status)) {
     await sendAlert(service.serviceName, status);
   }

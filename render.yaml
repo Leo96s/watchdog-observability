@@ -3,7 +3,7 @@ services:
   - type: web
     name: watchdog-backend
     env: docker
-    dockerContext: ./backend # Onde está o Dockerfile do backend
+    dockerContext: ./backend
     dockerfilePath: ./backend/Dockerfile
     plan: free
     envVars:
@@ -42,7 +42,18 @@ services:
           name: watchdog-backend
           property: host
 
-# 3. BASE DE DADOS (PostgreSQL)
+  # 3. DOCUMENTAÇÃO (VitePress) - NOVO
+  - type: web
+    name: watchdog-docs
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile.docs
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+# 4. BASE DE DADOS (PostgreSQL)
 databases:
   - name: watchdog-db
     plan: free

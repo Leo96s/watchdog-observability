@@ -11,17 +11,17 @@ const server = http.createServer(app);
 (async () => {
   try {
     await sequelize.sync({ alter: true });
-    console.log("Base de dados sincronizada");
+    console.log("Database synchronized successfully!");
 
     await sequelize.authenticate();
-    console.log("Conexão ao PostgreSQL estabelecida com sucesso!");
+    console.log("PostgreSQL connection established successfully!");
 
     server.listen(PORT, () => {
-      console.log(`Servidor a correr na porta ${PORT}`);
+      console.log(`Server running on port: ${PORT}`);
       startMonitoring();
     });
 
   } catch (err) {
-    console.error("Erro na base de dados:", err);
+    console.error("Error from database:", err);
   }
 })();

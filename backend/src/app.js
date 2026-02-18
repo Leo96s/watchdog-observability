@@ -4,14 +4,14 @@ const app = express();
 
 const { register } = require("./services/realTimeMetrics.service");
 
-// 1. Configurar CORS primeiro
+// Cors configured to allow requests from any origin (for development purposes)
 app.use(cors({ origin: "*" })); 
 
-// 2. Parsers de Body
+// Middleware to parse JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 3. Rotas
+// Routes
 app.use("/api/health", require("./routes/health.routes"));
 app.use("/upTime-metrics", require("./routes/upTime.routes"));
 app.use("/api/history", require("./routes/history.routes"));
@@ -23,7 +23,7 @@ app.get("/realTime-metrics", async (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.json({ message: "Watchdog API ativa" });
+  res.json({ message: "Watchdog API activate" });
 });
 
 module.exports = app;

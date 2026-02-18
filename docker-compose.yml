@@ -25,7 +25,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${DB_NAME}
@@ -37,14 +37,26 @@ services:
     build:
       context: ./frontend
       args:
-        # Passa a URL da API para o build do Vite
         - VITE_API_URL=${VITE_API_URL}
     container_name: watchdog-frontend
     restart: always
     ports:
-      - "80:80" # Aceder ao dashboard em http://localhost
+      - "80:80" 
     depends_on:
       - backend
+  docs:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.docs
+    container_name: watchdog-docs
+    restart: always
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./backend:/app # Mapeia a pasta backend para o container
+      - /app/node_modules # Protege os node_modules do container
+    environment:
+      - NODE_ENV=development
 
   prometheus:
     image: prom/prometheus

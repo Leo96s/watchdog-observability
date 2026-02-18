@@ -1,5 +1,11 @@
 const client = require("prom-client");
 
+/**
+ * This service is responsible for defining and updating real-time metrics for Prometheus.
+ * It includes metrics for service availability (UP/DOWN) and response times.
+ * The metrics are updated after each health check performed by the healthChecker service.
+ * These metrics can be scraped by Prometheus to provide real-time monitoring of the services.
+ */
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
