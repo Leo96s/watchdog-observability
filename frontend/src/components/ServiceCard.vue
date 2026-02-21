@@ -1,8 +1,8 @@
 <script setup>
-import { History, CheckCircle, XCircle } from 'lucide-vue-next';
+import { History, Trash2, CheckCircle, XCircle } from 'lucide-vue-next';
 
 defineProps(['service']);
-defineEmits(['openHistory']);
+const emit = defineEmits(['openHistory', 'deleteService']);
 </script>
 
 <template>
@@ -13,11 +13,18 @@ defineEmits(['openHistory']);
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ service.name }}</h3>
 
-                <button @click="$emit('openHistory', service.name)"
-                    class="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-all cursor-pointer"
-                    title="Ver Histórico">
-                    <History :size="20" />
-                </button>
+                <div class="flex gap-2">
+                    <button @click="$emit('openHistory', service.name)"
+                        class="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-all cursor-pointer"
+                        title="Ver Histórico">
+                        <History :size="20" />
+                    </button>
+
+                    <button @click="$emit('deleteService', service.id)"
+                        class="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all cursor-pointer">
+                        <Trash2 :size="20" />
+                    </button>
+                </div>
             </div>
 
             <p class="text-[#3b82f6] font-bold text-sm mt-1">{{ service.name }}</p>

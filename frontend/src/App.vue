@@ -56,6 +56,18 @@ const addService = async (newServiceData) => {
   }
 };
 
+const deleteService = async (id) => {
+  if (!confirm("Are you sure you want to remove this service?")) return;
+
+  try {
+    await api.delete(`/services/${id}`);
+    toast.success("Service removed");
+    await fetchStatus(); // Atualiza a lista
+  } catch (err) {
+    toast.error("Failed to delete service");
+  }
+};
+
 onMounted(() => {
   fetchStatus();
   setInterval(fetchStatus, 10000);
@@ -77,7 +89,7 @@ onMounted(() => {
     <div class="px-4">
       <div class="max-w-[1400px] mx-auto">
         <div v-if="services.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ServiceCard v-for="service in services" :key="service.id" :service="service" @openHistory="fetchHistory" />
+          <ServiceCard v-for="service in services" :key="service.id" :service="service" @openHistory="fetchHistory" @deleteService="deleteService"/>
         </div>
 
         <div v-else class="text-center p-20 bg-white/50 rounded-[2rem] border-2 border-dashed border-gray-300">

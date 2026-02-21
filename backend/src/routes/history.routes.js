@@ -28,7 +28,7 @@ router.get("/:name", async (req, res) => {
 
     res.json(history);
   } catch (error) {
-    console.error("ERRO NO BACKEND:", error);
+    console.error("Error on server:", error);
     res.status(500).json({ error: error.message });
   }
 });

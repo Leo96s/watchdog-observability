@@ -14,34 +14,26 @@ let monitoredServices = new Map();
 async function startMonitoring() {
   console.log("Monitorização iniciada...");
 
-  interval = setInterval(async () => {
+  const runChecks = async () => {
     try {
-      const services = await ServiceStatus.findAll();
-
-      console.log(
-        "Serviços carregados para monitorização:",
-        services.map((s) => s.serviceName),
+      const services = await ServiceStatus.findAll(
+        { where: { isActive: true } }
       );
+      console.log(`[Worker] Verificando ${services.length} serviços...`);
 
-      for (const service of services) {
-        await checkService(service);
-
-        monitoredServices.set(service.id, service);
-      }
+      // Executa todos os pings AO MESMO TEMPO
+      await Promise.all(services.map(service => checkService(service)));
+      
     } catch (err) {
       console.log("Error on getting services:", err.message);
     }
-  }, 120000);
+  };
 
-  try {
-    const services = await ServiceStatus.findAll();
-    for (const service of services) {
-      await checkService(service);
-      monitoredServices.set(service.id, service);
-    }
-  } catch (err) {
-    console.log("Error on loading the services in the inicialization:", err.message);
-  }
+  // Loop de 30 em 30 segundos
+  interval = setInterval(runChecks, 30000);
+
+  // Execução inicial imediata
+  runChecks();
 }
 
-module.exports = { startMonitoring, monitoredServices };
+module.exports = { startMonitoring };
