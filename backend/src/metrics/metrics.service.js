@@ -1,9 +1,13 @@
 const { Registry, Gauge } = require("prom-client");
 const ServiceStatus = require("../models/serviceStatus.model");
 
+/**
+ * =====================================
+ * Metric for service status (UP/DOWN)
+ * =====================================
+ */
 const register = new Registry();
 
-// Métrica de serviço UP/DOWN
 const serviceUp = new Gauge({
   name: "service_up",
   help: "Status do serviço (1 = UP, 0 = DOWN)",

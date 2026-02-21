@@ -1,0 +1,19 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+# Copia os ficheiros de dependências
+COPY package*.json ./
+
+# Instala as dependências
+RUN npm install
+
+# Copia o resto dos ficheiros (incluindo a pasta docs)
+COPY . .
+
+# Expõe a porta padrão do VitePress dev
+EXPOSE 5173
+
+# Comando para rodar o VitePress
+# Nota: usamos --host para permitir conexões externas ao container
+CMD ["npm", "run", "docs:dev", "--", "--host"]

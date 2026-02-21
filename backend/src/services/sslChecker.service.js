@@ -1,6 +1,14 @@
 const tls = require("tls");
 const url = require("url");
 
+/**
+ * This service is responsible for checking the SSL certificate of a given URL.
+ * It establishes a TLS connection to the target URL and retrieves the certificate information.
+ * The service calculates the number of days remaining until the SSL certificate expires
+ * and categorizes the status as OK, WARNING, or CRITICAL based on predefined thresholds.
+ * @param {*} targetUrl 
+ * @returns 
+ */
 async function checkSSL(targetUrl) {
   return new Promise((resolve, reject) => {
     try {

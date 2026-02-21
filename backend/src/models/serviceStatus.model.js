@@ -2,6 +2,12 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../database"); // o teu sequelize já configurado
 
+/**
+ * Model for the current status of monitored services.
+ * This model holds the latest status of each service, which is updated every time a check is performed.
+ * It includes the service name, URL, current status (UP/DOWN), response time,
+ * SSL expiry date, and other relevant information.
+ */
 const ServiceStatus = sequelize.define("ServiceStatus", {
   serviceName: {
     type: DataTypes.STRING,
@@ -10,6 +16,7 @@ const ServiceStatus = sequelize.define("ServiceStatus", {
   url: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   status: {
     type: DataTypes.STRING,
@@ -41,6 +48,10 @@ const ServiceStatus = sequelize.define("ServiceStatus", {
   body: {
     type: DataTypes.JSONB,
     allowNull: true,
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
 });
 
