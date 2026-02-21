@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from './services/api.service';
-import { Toaster, toast } from 'vue-sonner';
+import Toast from './components/Toast.vue'; // Importa o teu novo componente
 
 import ServiceForm from './components/ServiceForm.vue';
 import ServiceCard from './components/ServiceCard.vue';
@@ -13,6 +13,12 @@ const isSubmitting = ref(false);
 const showModal = ref(false);
 const selectedHistory = ref([]);
 const loadingHistory = ref(false);
+
+const toastNotification = ref({ show: false, message: '', type: 'success' });
+
+const showToast = (message, type = 'success') => {
+  toastNotification.value = { show: true, message, type };
+};
 
 const fetchStatus = async () => {
   try {
@@ -31,9 +37,9 @@ const fetchHistory = async (serviceName) => {
     const res = await api.get(`/history/${serviceName}`);
     selectedHistory.value = res.data;
     showModal.value = true;
-    toast.success("Histórico carregado.");
+    showToast("Histórico carregado");
   } catch (err) {
-    toast.error("Não foi possível carregar o histórico.");
+    showToast("Não foi possível carregar o histórico.", "error");
   } finally {
     loadingHistory.value = false;
   }
@@ -41,16 +47,16 @@ const fetchHistory = async (serviceName) => {
 
 const addService = async (newServiceData) => {
   if (!newServiceData.name || !newServiceData.url) {
-    toast.error("Preencha todos os campos!");
+    showToast("Preencha todos os campos!", "error");
     return;
   }
   isSubmitting.value = true;
   try {
     await api.post('/services', newServiceData);
-    toast.success(`Serviço "${newServiceData.name}" adicionado!`);
+    showToast(`Serviço "${newServiceData.name}" adicionado!`);
     await fetchStatus();
   } catch (err) {
-    toast.error("Erro ao comunicar com o servidor.");
+    showToast("Erro ao comunicar com o servidor.", "error");
   } finally {
     isSubmitting.value = false;
   }
@@ -61,10 +67,10 @@ const deleteService = async (id) => {
 
   try {
     await api.delete(`/services/${id}`);
-    toast.success("Service removed");
+    showToast("Service removed");
     await fetchStatus(); // Atualiza a lista
   } catch (err) {
-    toast.error("Failed to delete service");
+    showToast("Failed to delete service", "error");
   }
 };
 
@@ -75,7 +81,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <Toaster position="top-right" richColors />
+  <Toast 
+    v-if="toastNotification.show" 
+    :message="toastNotification.message" 
+    :type="toastNotification.type" 
+    @close="toastNotification.show = false" 
+  />
 
   <div class="min-h-screen w-full bg-[#f3f4f6] pb-10 font-sans antialiased">
 
