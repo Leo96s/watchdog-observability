@@ -1,3 +1,8 @@
+## v1.1.2 - 2026-02-21
+* fix: Melhorado o visual do Toaster
+* fix: resolvido erro
+* feat: agora é possível apagar um serviço
+* fix: corrigido inconsistências e documentado o código
 ## v1.0.5 - 2026-02-17
 * fix: update render.yaml
 ## v1.0.4 - 2026-02-17
