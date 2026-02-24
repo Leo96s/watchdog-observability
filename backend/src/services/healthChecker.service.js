@@ -71,10 +71,24 @@ async function checkService(service) {
     sslExpiry,
   });
 
-  // Persistent alert state and send alert if status changed
-  if (await hasStateChanged(service.id, status)) {
-    await sendAlert(service.serviceName, status);
+  console.log(`[Worker] Serviço: ${service.serviceName} | Status Atual: ${status}`);
+
+  const stateChanged = await hasStateChanged(service.id, status);
+  console.log(`[Worker] O estado mudou? ${stateChanged}`);
+
+  if (stateChanged) {
+    console.log(`[ALERTA] A preparar envio para o serviço ${service.serviceName}...`);
+    
+    const NotificationDestination = require("../models/notificationDestination.model");
+    const destinations = await NotificationDestination.findAll({ 
+      where: { serviceId: service.id } 
+    });
+
+    console.log(`[ALERTA] Encontrados ${destinations.length} destinos na base de dados.`);
+
+    await sendAlert(service.serviceName, status, destinations);
   }
+
 }
 
 module.exports = { checkService };

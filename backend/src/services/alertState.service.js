@@ -13,6 +13,7 @@ async function hasStateChanged(serviceId, newStatus) {
   const state = await AlertState.findByPk(serviceId);
 
   if (!state) {
+    console.log(`[Debug] Primeiro estado detetado para o serviço ${serviceId}: ${newStatus}`);
     await AlertState.create({
       serviceId,
       lastStatus: newStatus,
@@ -22,6 +23,7 @@ async function hasStateChanged(serviceId, newStatus) {
   }
 
   if (state.lastStatus !== newStatus) {
+    console.log(`[Debug] Mudança de estado no serviço ${serviceId}: ${state.lastStatus} -> ${newStatus}`);
     state.lastStatus = newStatus;
     state.lastChange = new Date();
     await state.save();
