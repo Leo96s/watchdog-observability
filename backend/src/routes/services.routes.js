@@ -100,4 +100,23 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.post("/:id/notifications", async (req, res) => {
+  const { type, value } = req.body;
+  const serviceId = req.params.id;
+
+  try {
+    const NotificationDestination = require("../models/notificationDestination.model");
+    
+    const newNotif = await NotificationDestination.create({
+      serviceId,
+      type,
+      value
+    });
+
+    res.status(201).json(newNotif);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao salvar notificação" });
+  }
+});
+
 module.exports = router;
