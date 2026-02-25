@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@layer base {
+  button {
+    background-color: unset;
+  }
+}
+
 html, body, #app {
   height: 100%;
   background-color: #f3f4f6; 

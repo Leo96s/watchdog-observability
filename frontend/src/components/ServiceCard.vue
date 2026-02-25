@@ -1,14 +1,20 @@
 <script setup>
+import { ref } from 'vue';
 import { History, Trash2, CheckCircle, XCircle } from 'lucide-vue-next';
+import AddAlertModal from './AddAlertModal.vue';
 
 defineProps(['service']);
 const emit = defineEmits(['openHistory', 'deleteService']);
+const isModalOpen = ref(false);
 </script>
 
 <template>
-    <div class="bg-white p-8 shadow-md border-l-[6px] transition-all flex flex-col justify-between relative"
+    <div @click="isModalOpen = true"
+        class="bg-white cursor-pointer group p-8 shadow-md border-l-[6px] transition-all flex flex-col justify-between relative"
         :class="service.status === 'UP' ? 'border-[#3b82f6]' : 'border-red-500'">
 
+        <AddAlertModal :service="service" :isOpen="isModalOpen" @close="isModalOpen = false" />
+        
         <div class="text-left">
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ service.name }}</h3>
