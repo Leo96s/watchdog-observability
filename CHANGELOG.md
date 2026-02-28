@@ -1,3 +1,8 @@
+## v1.3.0 - 2026-02-28
+* feat: agora é possível receber alertas por e-mail
+* fix: adicionado rota para adicionar notificaçoes a serviço que já existe
+* fix: resolvidos bugs no frontend
+* feat: agora os serviços podem ser observados por alertas pelo use
 ## v1.1.2 - 2026-02-21
 * fix: Melhorado o visual do Toaster
 * fix: resolvido erro
