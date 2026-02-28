@@ -1,5 +1,5 @@
 services:
-  # 1. BACKEND (Node.js)
+  # 1. BACKEND (Node.js + Worker)
   - type: web
     name: watchdog-backend
     env: docker
@@ -27,6 +27,14 @@ services:
           property: database
       - key: DB_PORT
         value: 5432
+      - key: SMTP_HOST
+        sync: false 
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
 
   # 2. FRONTEND (Vue/Vite)
   - type: web
@@ -42,7 +50,7 @@ services:
           name: watchdog-backend
           property: host
 
-  # 3. DOCUMENTAÇÃO (VitePress) - NOVO
+  # 3. DOCUMENTAÇÃO (VitePress)
   - type: web
     name: watchdog-docs
     env: docker
@@ -57,3 +65,4 @@ services:
 databases:
   - name: watchdog-db
     plan: free
+    postgresMajorVersion: 15

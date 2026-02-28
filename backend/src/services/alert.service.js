@@ -1,6 +1,17 @@
 const axios = require("axios");
 const nodemailer = require("nodemailer");
 
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT) || 465,
+  secure: true, // true para porta 465
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+  connectionTimeout: 10000,
+});
+
 /**
  * This service is responsible for sending alerts when a service changes its status (e.g., from UP to DOWN).
  * It uses a webhook URL defined in the environment variables to send notifications.
@@ -36,17 +47,18 @@ async function sendAlert(serviceName, status, destinations) {
     if (dest.type === "email") {
       // Exemplo rápido com Nodemailer (requer configuração de SMTP no .env)
       try {
-        let transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST,
-          port: process.env.SMTP_PORT,
-          auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-        });
-
         await transporter.sendMail({
-          from: '"Watchdog" <alert@watchdog.com>',
+          from: `"Watchdog Monitor" <${process.env.SMTP_USER}>`,
           to: dest.value,
-          subject: `Alerta: ${serviceName} está ${status}`,
-          text: `O serviço ${serviceName} mudou o seu estado para ${status}.`,
+          subject: `⚠️ Alerta de Status: ${serviceName} está ${status}`,
+          html: `
+            <div style="font-family: sans-serif; color: white; pading: 20px; border-radius: 10px;">
+              <h2 style="color: #3b82f6;">Watchdog Alert</h2>
+              <p>O serviço <strong>${serviceName}</strong> mudou para o estado: <span style="background: #333; padding: 2px 5px; border-radius: 4px;">${status}</span></p>
+              <hr style="border: 0; border-top: 1px solid #333;" />
+              <small>Este é um alerta automático do teu sistema de monitorização.</small>
+            </div>
+          `,
         });
       } catch (err) {
         console.error(`Falha no E-mail para ${dest.value}:`, err.message);
