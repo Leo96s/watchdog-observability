@@ -7,7 +7,8 @@ const ServiceStatus = require("../models/serviceStatus.model");
  * The newly added service will be monitored for health status, response times, and SSL expiry.
  */
 router.post("/", async (req, res) => {
-  const { name, url } = req.body;
+  const { name, url, notifications } = req.body; 
+// notifications deve ser algo como: [{type: 'webhook', value: 'http...'}, {type: 'email', value: 'dev@test.com'}]
 
   if (!name || !url) {
     return res.status(400).json({ error: "Name and URL are required!" });
@@ -31,6 +32,12 @@ router.post("/", async (req, res) => {
         isActive: true,
         status: "UNKNOWN" 
       });
+
+      if (notifications && notifications.length > 0) {
+        const NotificationDestination = require("../models/notificationDestination.model");
+        const dests = notifications.map(n => ({ ...n, serviceId: existingService.id }));
+        await NotificationDestination.bulkCreate(dests);
+      }
       
       return res.status(200).json({ 
         message: "Serviço encontrado no histórico e reativado!", 
@@ -45,6 +52,12 @@ router.post("/", async (req, res) => {
       status: "UNKNOWN",
       isActive: true, 
     });
+
+    if (notifications && notifications.length > 0) {
+        const NotificationDestination = require("../models/notificationDestination.model");
+        const dests = notifications.map(n => ({ ...n, serviceId: newService.id }));
+        await NotificationDestination.bulkCreate(dests);
+    }
 
     res.status(201).json({
       message: "Service added successfully",
@@ -73,10 +86,36 @@ router.delete("/:id", async (req, res) => {
     }
 
     await service.update({ isActive: false }); //we mark the service as inactive instead of deleting it from the database
+    
+    const AlertState = require("../models/alertState.model");
+    await AlertState.destroy({ where: { serviceId: id } });
+
+    const NotificationDestination = require("../models/notificationDestination.model");
+    await NotificationDestination.destroy({ where: { serviceId: id } });
+    
     res.status(200).json({ message: "Service deactivated successfully" });
   } catch (err) {
     console.error("Error on deactivating service:", err);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/:id/notifications", async (req, res) => {
+  const { type, value } = req.body;
+  const serviceId = req.params.id;
+
+  try {
+    const NotificationDestination = require("../models/notificationDestination.model");
+    
+    const newNotif = await NotificationDestination.create({
+      serviceId,
+      type,
+      value
+    });
+
+    res.status(201).json(newNotif);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao salvar notificação" });
   }
 });
 

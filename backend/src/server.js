@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const http = require("node:http");
 const app = require("./app");
-const sequelize = require("./database");
+const { sequelize } = require("./models/index");
 const { startMonitoring } = require("./sockets/socket.manager");
 
 const PORT = process.env.PORT || 3000;
