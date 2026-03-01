@@ -5,8 +5,8 @@ console.log(`[SMTP Config] Host: ${process.env.SMTP_HOST} | Port: ${process.env.
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT) || 465,
-  secure: true, // true para porta 465
+  port: parseInt(process.env.SMTP_PORT) || 587,
+  secure: false, // true para porta 465
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -16,6 +16,7 @@ const transporter = nodemailer.createTransport({
   logger: true,
   tls: {
     rejectUnauthorized: false,
+    minVersion: 'TLSv1.2',
     servername: 'smtp.gmail.com'
   },
   connectionTimeout: 20000,
