@@ -1,3 +1,5 @@
+## v1.3.2 - 2026-03-01
+* fix: ainda a tentar resolver alertas por email no render
 ## v1.3.1 - 2026-03-01
 * fix: tentando resoolver erro de envio de emails do render
 ## v1.3.0 - 2026-02-28
