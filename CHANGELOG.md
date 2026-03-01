@@ -1,3 +1,5 @@
+## v1.3.11 - 2026-03-01
+* fix: fazendo debug
 ## v1.3.10 - 2026-03-01
 * fix: corrigido erro
 ## v1.3.9 - 2026-03-01
