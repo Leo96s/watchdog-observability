@@ -1,3 +1,5 @@
+## v1.3.8 - 2026-03-01
+* fix: alterado o sistema de email para ver se o render aceita
 ## v1.3.7 - 2026-03-01
 * fix: decidido mudar a estratégia para enviar emails
 ## v1.3.6 - 2026-03-01
