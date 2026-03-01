@@ -1,3 +1,5 @@
+## v1.3.12 - 2026-03-01
+* fix: ainda tentando resolver erro de enviar emails
 ## v1.3.11 - 2026-03-01
 * fix: fazendo debug
 ## v1.3.10 - 2026-03-01
