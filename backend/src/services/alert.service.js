@@ -37,6 +37,7 @@ async function sendAlert(serviceName, status, destinations) {
       try {
         console.log(`[EmailJS] A enviar para: ${dest.value}`);
 
+        console.log(`[Debug] Service: ${process.env.EMAILJS_SERVICE_ID}, Template: ${process.env.EMAILJS_TEMPLATE_ID}`);
         const templateParams = {
           to_email: dest.value,
           subject: `⚠️ Alerta: ${serviceName} está ${status}`,
