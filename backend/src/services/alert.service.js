@@ -1,5 +1,5 @@
 const axios = require("axios");
-const emailjs = require("@emailjs/nodejs");
+const emailjs = require("@emailjs/nodejs").default || require("@emailjs/nodejs");
 
 /**
  * This service is responsible for sending alerts when a service changes its status (e.g., from UP to DOWN).
@@ -38,13 +38,14 @@ async function sendAlert(serviceName, status, destinations) {
         console.log(`[EmailJS] A enviar para: ${dest.value}`);
 
         console.log(`[Debug] Service: ${process.env.EMAILJS_SERVICE_ID}, Template: ${process.env.EMAILJS_TEMPLATE_ID}`);
+        
         const templateParams = {
           to_email: dest.value,
           subject: `⚠️ Alerta: ${serviceName} está ${status}`,
           message: `O serviço ${serviceName} mudou para o estado: ${status}. Verifique o painel.`
         };
 
-        await emailjs.send(
+        const result = await emailjs.send(
           process.env.EMAILJS_SERVICE_ID,
           process.env.EMAILJS_TEMPLATE_ID,
           templateParams,
@@ -54,9 +55,10 @@ async function sendAlert(serviceName, status, destinations) {
           }
         );
 
-        console.log(`[EmailJS] Sucesso ao enviar para ${dest.value}`);
+        console.log(`[EmailJS] Sucesso!`, result);
       } catch (err) {
         console.error(`Falha no E-mail para ${dest.value}:`, err.message);
+        if (err.text) console.error(`[EmailJS] Resposta do servidor: ${err.text}`);
       }
     }
   }
