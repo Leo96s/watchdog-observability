@@ -1,3 +1,5 @@
+## v1.3.4 - 2026-03-01
+* fix: resolvendo o erro de alerta por email
 ## v1.3.3 - 2026-03-01
 * fix: mais uma tentativa de resolver erro de email
 ## v1.3.2 - 2026-03-01
