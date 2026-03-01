@@ -1,3 +1,5 @@
+## v1.3.1 - 2026-03-01
+* fix: tentando resoolver erro de envio de emails do render
 ## v1.3.0 - 2026-02-28
 * feat: agora é possível receber alertas por e-mail
 * fix: adicionado rota para adicionar notificaçoes a serviço que já existe
