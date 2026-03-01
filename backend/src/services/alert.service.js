@@ -1,36 +1,8 @@
 const axios = require("axios");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-console.log(`[SMTP Config] Host: ${process.env.SMTP_HOST} | Port: ${process.env.SMTP_PORT} | User: ${process.env.SMTP_USER}`);
-
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT) || 587,
-  secure: false, // true para porta 465
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  family: 4, 
-  debug: true,
-  logger: true,
-  tls: {
-    rejectUnauthorized: false,
-    minVersion: 'TLSv1.2',
-    servername: 'smtp.gmail.com'
-  },
-  connectionTimeout: 20000,
-  greetingTimeout: 20000,
-  socketTimeout: 20000
-});
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("[SMTP Check] Erro de configuração:", error.message);
-  } else {
-    console.log("[SMTP Check] Servidor pronto para enviar emails!");
-  }
-});
+// Inicializa o Resend com a tua API KEY do Render
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * This service is responsible for sending alerts when a service changes its status (e.g., from UP to DOWN).
@@ -65,21 +37,33 @@ async function sendAlert(serviceName, status, destinations) {
     }
 
     if (dest.type === "email") {
-      // Exemplo rápido com Nodemailer (requer configuração de SMTP no .env)
       try {
-        await transporter.sendMail({
-          from: `"Watchdog Monitor" <${process.env.SMTP_USER}>`,
-          to: dest.value,
+        console.log(`[Resend] A enviar e-mail para: ${dest.value}`);
+
+        const { data, error } = await resend.emails.send({
+          // Enquanto não tens domínio próprio no Resend, USA ESTE REMETENTE:
+          from: 'Watchdog Monitor <onboarding@resend.dev>',
+          to: [dest.value],
           subject: `⚠️ Alerta de Status: ${serviceName} está ${status}`,
           html: `
-            <div style="font-family: sans-serif; color: white; pading: 20px; border-radius: 10px;">
+            <div style="font-family: sans-serif; background-color: #1a1a1a; color: white; padding: 20px; border-radius: 10px;">
               <h2 style="color: #3b82f6;">Watchdog Alert</h2>
-              <p>O serviço <strong>${serviceName}</strong> mudou para o estado: <span style="background: #333; padding: 2px 5px; border-radius: 4px;">${status}</span></p>
-              <hr style="border: 0; border-top: 1px solid #333;" />
-              <small>Este é um alerta automático do teu sistema de monitorização.</small>
+              <p>O serviço <strong>${serviceName}</strong> mudou para o estado: 
+                <span style="background: #333; padding: 4px 8px; border-radius: 4px; color: #ff4d4d; font-weight: bold;">
+                  ${status}
+                </span>
+              </p>
+              <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;" />
+              <small style="color: #888;">Este é um alerta automático do teu sistema de monitorização.</small>
             </div>
           `,
         });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        console.log(`[Resend] Sucesso ao enviar e-mail! ID: ${data.id}`);
       } catch (err) {
         console.error(`Falha no E-mail para ${dest.value}:`, err.message);
       }
