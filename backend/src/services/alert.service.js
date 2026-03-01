@@ -1,6 +1,8 @@
 const axios = require("axios");
 const nodemailer = require("nodemailer");
 
+console.log(`[SMTP Config] Host: ${process.env.SMTP_HOST} | Port: ${process.env.SMTP_PORT} | User: ${process.env.SMTP_USER}`);
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT) || 465,
@@ -16,6 +18,14 @@ const transporter = nodemailer.createTransport({
   connectionTimeout: 20000,
   greetingTimeout: 20000,
   socketTimeout: 20000
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("[SMTP Check] Erro de configuração:", error.message);
+  } else {
+    console.log("[SMTP Check] Servidor pronto para enviar emails!");
+  }
 });
 
 /**
