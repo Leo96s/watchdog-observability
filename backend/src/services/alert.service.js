@@ -1,8 +1,5 @@
 const axios = require("axios");
-const { Resend } = require("resend");
-
-// Inicializa o Resend com a tua API KEY do Render
-const resend = new Resend(process.env.RESEND_API_KEY);
+const emailjs = require("@emailjs/nodejs");
 
 /**
  * This service is responsible for sending alerts when a service changes its status (e.g., from UP to DOWN).
@@ -38,32 +35,25 @@ async function sendAlert(serviceName, status, destinations) {
 
     if (dest.type === "email") {
       try {
-        console.log(`[Resend] A enviar e-mail para: ${dest.value}`);
+        console.log(`[EmailJS] A enviar para: ${dest.value}`);
 
-        const { data, error } = await resend.emails.send({
-          // Enquanto não tens domínio próprio no Resend, USA ESTE REMETENTE:
-          from: 'Watchdog Monitor <onboarding@resend.dev>',
-          to: [dest.value],
-          subject: `⚠️ Alerta de Status: ${serviceName} está ${status}`,
-          html: `
-            <div style="font-family: sans-serif; background-color: #1a1a1a; color: white; padding: 20px; border-radius: 10px;">
-              <h2 style="color: #3b82f6;">Watchdog Alert</h2>
-              <p>O serviço <strong>${serviceName}</strong> mudou para o estado: 
-                <span style="background: #333; padding: 4px 8px; border-radius: 4px; color: #ff4d4d; font-weight: bold;">
-                  ${status}
-                </span>
-              </p>
-              <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;" />
-              <small style="color: #888;">Este é um alerta automático do teu sistema de monitorização.</small>
-            </div>
-          `,
-        });
+        const templateParams = {
+          to_email: dest.value,
+          subject: `⚠️ Alerta: ${serviceName} está ${status}`,
+          message: `O serviço ${serviceName} mudou para o estado: ${status}. Verifique o painel.`
+        };
 
-        if (error) {
-          throw new Error(error.message);
-        }
+        await emailjs.send(
+          process.env.EMAILJS_SERVICE_ID,
+          process.env.EMAILJS_TEMPLATE_ID,
+          templateParams,
+          {
+            publicKey: process.env.EMAILJS_PUBLIC_KEY,
+            privateKey: process.env.EMAILJS_PRIVATE_KEY,
+          }
+        );
 
-        console.log(`[Resend] Sucesso ao enviar e-mail! ID: ${data.id}`);
+        console.log(`[EmailJS] Sucesso ao enviar para ${dest.value}`);
       } catch (err) {
         console.error(`Falha no E-mail para ${dest.value}:`, err.message);
       }
