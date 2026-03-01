@@ -1,3 +1,5 @@
+## v1.3.6 - 2026-03-01
+* fix: corrigindo erro
 ## v1.3.5 - 2026-03-01
 * fix: mais uma tentativa
 ## v1.3.4 - 2026-03-01
