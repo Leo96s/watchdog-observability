@@ -37,7 +37,6 @@ services:
         sync: false 
       - key: EMAILJS_PRIVATE_KEY
         sync: false 
-EMAILJS_PRIVATE_KEY
 
   # 2. FRONTEND (Vue/Vite)
   - type: web
