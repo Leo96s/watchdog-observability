@@ -22,11 +22,19 @@ const serviceUp = new client.Gauge({
   labelNames: ["service"]
 });
 
+const serviceUptime = new client.Gauge({
+  name: "watchdog_service_uptime_percent",
+  help: "Uptime percentage of the service over the last 24 hours",
+  labelNames: ["service"]
+});
+
 register.registerMetric(requestDuration);
 register.registerMetric(serviceUp);
+register.registerMetric(serviceUptime);
 
 module.exports = {
   register,
   requestDuration,
-  serviceUp
+  serviceUp,
+  serviceUptime
 };

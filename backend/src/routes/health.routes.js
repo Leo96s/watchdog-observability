@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const ServiceStatus = require("../models/serviceStatus.model");
+const { toServiceStatusPayload } = require("../utils/serviceMapper");
 
 /**
  * Route to get the current health status of all monitored services.
@@ -9,24 +10,18 @@ const ServiceStatus = require("../models/serviceStatus.model");
  */
 router.get("/", async (req, res) => {
   try {
+    const limit = Math.min(Number(req.query.limit) || 100, 500);
+    const offset = Number(req.query.offset) || 0;
+
     // Apenas lê da BD. Resposta em milissegundos!
     const services = await ServiceStatus.findAll({
       where: { isActive: true },
-      order: [['createdAt', 'ASC']]
+      order: [['createdAt', 'ASC']],
+      limit,
+      offset,
     });
 
-    // Mapear para garantir que os nomes dos campos batem com o que o Frontend espera
-    const statusList = services.map(service => ({
-      id: service.id,
-      name: service.serviceName,
-      url: service.url,
-      status: service.status,
-      lastChecked: service.updatedAt, 
-      responseTime: service.responseTime || null,
-      sslExpiry: service.sslExpiry || null
-    }));
-
-    res.json(statusList);
+    res.json(services.map(toServiceStatusPayload));
   } catch (err) {
     res.status(500).json({ error: "Erro ao ler status dos serviços" });
   }
