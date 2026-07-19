@@ -1,13 +1,23 @@
-FROM node:20
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
 
+FROM node:20-alpine
 WORKDIR /app
 
-COPY package*.json ./
+RUN apk add --no-cache curl \
+  && addgroup -S watchdog && adduser -S watchdog -G watchdog
 
-RUN npm install
-
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+RUN chown -R watchdog:watchdog /app
+USER watchdog
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+CMD ["sh", "-c", "npm run db:migrate && npm start"]

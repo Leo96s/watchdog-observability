@@ -27,8 +27,13 @@ services:
           property: database
       - key: DB_PORT
         value: 5432
-      - key: RESEND_API_KEY
-        sync: false 
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        fromService:
+          type: web
+          name: watchdog-frontend
+          property: host
       - key: EMAILJS_SERVICE_ID
         sync: false 
       - key: EMAILJS_TEMPLATE_ID

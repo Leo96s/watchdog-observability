@@ -19,6 +19,10 @@ const SENSITIVE_NAME_PATTERNS = [
   /credentials\.json$/,
 ];
 
+// Mirrors the "!.env.example" exception already in .gitignore - example
+// files with placeholder values are meant to be committed.
+const SENSITIVE_NAME_EXCEPTIONS = new Set(['.env.example']);
+
 const BINARY_EXTENSIONS = new Set([
   '.png', '.jpg', '.jpeg', '.gif', '.ico', '.webp', '.pdf',
   '.zip', '.gz', '.tar', '.7z', '.mp4', '.mov', '.woff', '.woff2',
@@ -56,7 +60,7 @@ function fail(message) {
 for (const file of stagedFiles()) {
   const name = path.basename(file);
 
-  if (SENSITIVE_NAME_PATTERNS.some((re) => re.test(name))) {
+  if (!SENSITIVE_NAME_EXCEPTIONS.has(name) && SENSITIVE_NAME_PATTERNS.some((re) => re.test(name))) {
     fail(`"${file}" parece um ficheiro sensível (credencial/chave privada). Remove-o do commit (git restore --staged "${file}") e usa variáveis de ambiente ou um gestor de segredos.`);
     continue;
   }
