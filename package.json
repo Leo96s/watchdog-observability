@@ -1,0 +1,30 @@
+{
+  "name": "watchdog-observability",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Leo96s/watchdog-observability.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Leo96s/watchdog-observability/issues"
+  },
+  "homepage": "https://github.com/Leo96s/watchdog-observability#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "lint-staged": "^16.4.0",
+    "secretlint": "^13.0.2",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.2"
+  }
+}
