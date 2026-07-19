@@ -12,9 +12,10 @@ const url = require("url");
 async function checkSSL(targetUrl) {
   return new Promise((resolve, reject) => {
     try {
-      const { hostname } = new url.URL(targetUrl);
+      const { hostname, port } = new url.URL(targetUrl);
+      const targetPort = port ? Number(port) : 443;
 
-      const socket = tls.connect(443, hostname, { servername: hostname }, () => {
+      const socket = tls.connect(targetPort, hostname, { servername: hostname }, () => {
         const cert = socket.getPeerCertificate();
         socket.end();
 
