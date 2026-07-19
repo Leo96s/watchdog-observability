@@ -1,4 +1,5 @@
 const AlertState = require("../models/alertState.model");
+const logger = require("../utils/logger");
 
 /**
  * This service is responsible for tracking the last known state of each monitored service.
@@ -13,7 +14,7 @@ async function hasStateChanged(serviceId, newStatus) {
   const state = await AlertState.findByPk(serviceId);
 
   if (!state) {
-    console.log(`[Debug] Primeiro estado detetado para o serviço ${serviceId}: ${newStatus}`);
+    logger.info(`[AlertState] First state detected for service ${serviceId}: ${newStatus}`);
     await AlertState.create({
       serviceId,
       lastStatus: newStatus,
@@ -23,7 +24,7 @@ async function hasStateChanged(serviceId, newStatus) {
   }
 
   if (state.lastStatus !== newStatus) {
-    console.log(`[Debug] Mudança de estado no serviço ${serviceId}: ${state.lastStatus} -> ${newStatus}`);
+    logger.info(`[AlertState] State change for service ${serviceId}: ${state.lastStatus} -> ${newStatus}`);
     state.lastStatus = newStatus;
     state.lastChange = new Date();
     await state.save();

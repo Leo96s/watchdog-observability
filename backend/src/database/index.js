@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+const logger = require('../utils/logger');
 const isProduction = process.env.NODE_ENV === 'production';
 /**
  * This module initializes the Sequelize instance to connect to a PostgreSQL database using credentials 
@@ -30,11 +31,11 @@ const sequelize = new Sequelize(
 // Testing the connection
 (async () => {
   try {
-    console.log(`Trying to connect to database: ${process.env.DB_NAME} with user: ${process.env.DB_USER}`);
+    logger.info(`Trying to connect to database: ${process.env.DB_NAME}`);
     await sequelize.authenticate();
-    console.log('Conecttion to PostgreSQL has been established successfully!');
+    logger.info('Connection to PostgreSQL established successfully!');
   } catch (error) {
-    console.error('Error on connecting to postgreSQL', error);
+    logger.error({ error }, 'Error connecting to PostgreSQL');
   }
 })();
 
