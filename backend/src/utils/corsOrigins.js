@@ -2,9 +2,12 @@
  * Shared CORS origin check for both Express (app.js) and Socket.IO (server.js).
  *
  * FRONTEND_ORIGIN can be a full origin (e.g. "http://localhost:5173", used in
- * docker-compose/local dev) or a bare hostname (Render's `fromService`
- * `property: host` only returns the hostname, no scheme). Both forms are
- * normalized to just the host before comparing, so either works.
+ * docker-compose/local dev) or Render's `fromService`/`property: host`
+ * value, which is only the *internal* short service name (e.g.
+ * "watchdog-frontend-m48x"), not the public hostname the browser's Origin
+ * header actually sends ("watchdog-frontend-m48x.onrender.com"). A bare
+ * name with no dot is assumed to be exactly that and gets ".onrender.com"
+ * appended before comparing.
  */
 
 function parseAllowedOrigins() {
@@ -15,10 +18,15 @@ function parseAllowedOrigins() {
 }
 
 function normalizeToHost(value) {
+  let host = value;
+  if (!/^https?:\/\//i.test(host) && !host.includes(".")) {
+    host = `${host}.onrender.com`;
+  }
+
   try {
-    return new URL(value).host;
+    return new URL(/^https?:\/\//i.test(host) ? host : `https://${host}`).host;
   } catch {
-    return value; // already a bare hostname, e.g. "my-app.onrender.com"
+    return host;
   }
 }
 

@@ -6,8 +6,12 @@ describe('resolveApiOrigin', () => {
     expect(resolveApiOrigin('http://localhost:3000')).toBe('http://localhost:3000');
   });
 
-  test('adds https:// to a bare hostname (Render fromService/host)', () => {
+  test('adds https:// to a full hostname', () => {
     expect(resolveApiOrigin('watchdog-backend.onrender.com')).toBe('https://watchdog-backend.onrender.com');
+  });
+
+  test('adds .onrender.com to a bare internal service name (Render fromService/host)', () => {
+    expect(resolveApiOrigin('watchdog-backend-dvx5')).toBe('https://watchdog-backend-dvx5.onrender.com');
   });
 
   test('strips a trailing slash', () => {

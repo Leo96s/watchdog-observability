@@ -17,9 +17,14 @@ describe("isOriginAllowed", () => {
     expect(isOriginAllowed("http://localhost:9999")).toBe(false);
   });
 
-  test("matches when the configured value is a bare hostname (Render's fromService/host)", () => {
+  test("matches when the configured value is a full hostname without scheme", () => {
     process.env.FRONTEND_ORIGIN = "watchdog-frontend.onrender.com";
     expect(isOriginAllowed("https://watchdog-frontend.onrender.com")).toBe(true);
+  });
+
+  test("matches when the configured value is Render's bare internal service name", () => {
+    process.env.FRONTEND_ORIGIN = "watchdog-frontend-m48x";
+    expect(isOriginAllowed("https://watchdog-frontend-m48x.onrender.com")).toBe(true);
   });
 
   test("supports a comma-separated list of origins", () => {
