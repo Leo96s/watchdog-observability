@@ -1,3 +1,6 @@
+## v1.7.3 - 2026-07-19
+* fix(deploy): resolve o hostname interno curto do Render para o publico
+* fix(deploy): torna as migrations resilientes a atrasos no arranque da BD
 ## v1.7.1 - 2026-07-19
 * chore: reforca Dockerfiles, adiciona exemplos de variaveis e corrige CVEs
 * feat(ui): edicao de servicos, gestao de alertas e definir API key
