@@ -3,9 +3,18 @@ const cors = require("cors");
 const app = express();
 
 const { register } = require("./services/realTimeMetrics.service");
+const { isOriginAllowed } = require("./utils/corsOrigins");
 
-// Cors configured to allow requests from any origin (for development purposes)
-app.use(cors({ origin: "*" })); 
+// CORS restricted to the configured frontend origin(s); falls back to
+// localhost for local development when FRONTEND_ORIGIN isn't set.
+app.use(cors({
+  origin(origin, callback) {
+    if (isOriginAllowed(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  }
+}));
 
 // Middleware to parse JSON and URL-encoded data
 app.use(express.json());
