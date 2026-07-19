@@ -28,7 +28,14 @@ export default defineConfig({
         text: 'Guia de Início',
         items: [
           { text: 'Instalação', link: '/instalar' },
-          { text: 'Configuração .env', link: '/config' },
+          { text: 'Configuração de ambiente', link: '/config' },
+        ]
+      },
+      {
+        text: 'Referência',
+        items: [
+          { text: 'API (REST + Socket.IO)', link: '/api-reference' },
+          { text: 'Segurança', link: '/seguranca' },
         ]
       },
       {
@@ -37,6 +44,12 @@ export default defineConfig({
           { text: 'Backend (Node/Sequelize)', link: '/api/backend' },
           { text: 'Frontend (Vue 3)', link: '/api/frontend' },
           { text: 'Base de Dados', link: '/api/database' }
+        ]
+      },
+      {
+        text: 'Operações',
+        items: [
+          { text: 'Deploy', link: '/deploy' },
         ]
       }
     ]

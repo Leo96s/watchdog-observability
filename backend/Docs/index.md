@@ -4,22 +4,27 @@ layout: home
 
 hero:
   name: "Watchdog Docs"
-  text: "A site to observe if services is alive or not"
-  tagline: My great project tagline
+  text: "Monitorização de serviços em tempo real"
+  tagline: Health checks, SSL, uptime, alertas por webhook/email e métricas Prometheus.
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: Instalação
+      link: /instalar
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: Referência da API
+      link: /api-reference
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Health checks automáticos
+    details: Verifica cada serviço ativo a cada 30 segundos (HTTP + validade do certificado SSL) e guarda o histórico.
+  - title: Tempo real via Socket.IO
+    details: O painel recebe updates instantâneos assim que um health check termina, sem polling.
+  - title: Alertas configuráveis
+    details: Notificações por webhook (Discord/Slack) ou email (EmailJS) quando um serviço muda de estado.
+  - title: Protegido contra SSRF
+    details: URLs de serviços e webhooks são validados contra IPs privados/loopback/link-local antes de qualquer pedido.
+  - title: Métricas Prometheus
+    details: Endpoint /realTime-metrics pronto a ser raspado, com uptime e estado por serviço.
+  - title: Escrita protegida por API key
+    details: Criar, editar ou apagar serviços exige o header X-API-Key; a leitura fica pública.
 ---
-
