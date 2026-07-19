@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue';
-import { X, Bell, Send } from 'lucide-vue-next';
-import axios from 'axios';
+import { ref, watch } from 'vue';
+import { X, Bell, Send, Trash2 } from 'lucide-vue-next';
+import api from '../services/api.service';
 import BaseSelect from './BaseSelect.vue'
 
 const props = defineProps(['service', 'isOpen']);
@@ -10,25 +10,51 @@ const emit = defineEmits(['close']);
 const type = ref('webhook');
 const value = ref('');
 const loading = ref(false);
+const destinations = ref([]);
+const loadingDestinations = ref(false);
+
+const fetchDestinations = async () => {
+    if (!props.service?.id) return;
+    loadingDestinations.value = true;
+    try {
+        const res = await api.get(`/services/${props.service.id}`);
+        destinations.value = res.data.destinations || [];
+    } catch (err) {
+        console.error("Erro ao carregar destinos de notificação");
+    } finally {
+        loadingDestinations.value = false;
+    }
+};
+
+watch(() => props.isOpen, (open) => {
+    if (open) fetchDestinations();
+});
 
 const handleAdd = async () => {
     if (!value.value) return;
     loading.value = true;
 
     try {
-        // Rota para adicionar apenas uma notificação ao serviço
-        await axios.post(`http://localhost:3000/api/services/${props.service.id}/notifications`, {
+        await api.post(`/services/${props.service.id}/notifications`, {
             type: type.value,
             value: value.value
         });
 
         value.value = '';
-        emit('close');
-        alert('Alerta configurado com sucesso!');
+        await fetchDestinations();
     } catch (err) {
         console.error("Erro ao adicionar alerta");
     } finally {
         loading.value = false;
+    }
+};
+
+const removeDestination = async (notifId) => {
+    try {
+        await api.delete(`/services/${props.service.id}/notifications/${notifId}`);
+        destinations.value = destinations.value.filter(d => d.id !== notifId);
+    } catch (err) {
+        console.error("Erro ao remover alerta");
     }
 };
 </script>
@@ -40,7 +66,7 @@ const handleAdd = async () => {
 
             <div class="flex justify-between items-center mb-8 ml-4 mt-5">
                 <h2 class="text-white font-bold text-lg flex items-center gap-2">
-                    <Bell class="text-[#3b82f6]" :size="20" /> New Alert
+                    <Bell class="text-[#3b82f6]" :size="20" /> Alerts
                 </h2>
                 <button @click.stop="$emit('close')" class="text-gray-500 hover:text-white mr-4">
                     <X :size="20" />
@@ -48,6 +74,19 @@ const handleAdd = async () => {
             </div>
 
             <div class="space-y-4 ml-4 mr-4">
+                <div v-if="destinations.length > 0" class="space-y-2 mb-6">
+                    <div v-for="dest in destinations" :key="dest.id"
+                        class="flex items-center justify-between bg-[#2a2a2a] rounded-2xl px-4 py-3">
+                        <span class="text-white text-xs truncate mr-2">
+                            <span class="text-gray-500 uppercase font-bold mr-1">{{ dest.type }}</span>
+                            {{ dest.value }}
+                        </span>
+                        <button @click="removeDestination(dest.id)" class="text-gray-500 hover:text-red-500 shrink-0">
+                            <Trash2 :size="16" />
+                        </button>
+                    </div>
+                </div>
+
                 <div>
                     <label class="text-gray-500 text-[10px] uppercase font-bold ml-2">
                         Type of alert

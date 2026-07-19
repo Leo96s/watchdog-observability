@@ -1,11 +1,13 @@
 <script setup>
 import { ref } from 'vue';
-import { History, Trash2, CheckCircle, XCircle } from 'lucide-vue-next';
+import { History, Trash2, CheckCircle, XCircle, Pencil } from 'lucide-vue-next';
 import AddAlertModal from './AddAlertModal.vue';
+import EditServiceModal from './EditServiceModal.vue';
 
 defineProps(['service']);
-const emit = defineEmits(['openHistory', 'deleteService']);
+const emit = defineEmits(['openHistory', 'deleteService', 'serviceUpdated']);
 const isModalOpen = ref(false);
+const isEditModalOpen = ref(false);
 </script>
 
 <template>
@@ -14,12 +16,20 @@ const isModalOpen = ref(false);
         :class="service.status === 'UP' ? 'border-[#3b82f6]' : 'border-red-500'">
 
         <AddAlertModal :service="service" :isOpen="isModalOpen" @close="isModalOpen = false" />
-        
+        <EditServiceModal :service="service" :isOpen="isEditModalOpen" @close="isEditModalOpen = false"
+            @updated="$emit('serviceUpdated')" />
+
         <div class="text-left">
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ service.name }}</h3>
 
                 <div class="flex gap-2">
+                    <button @click.stop="isEditModalOpen = true"
+                        class="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-all cursor-pointer"
+                        title="Editar Serviço">
+                        <Pencil :size="20" />
+                    </button>
+
                     <button @click="$emit('openHistory', service.name)"
                         class="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-all cursor-pointer"
                         title="Ver Histórico">
