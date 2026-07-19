@@ -1,12 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from './services/api.service';
+import { useServiceSocket } from './composables/useSocket';
 import Toast from './components/Toast.vue'; // Importa o teu novo componente
 
 import ServiceForm from './components/ServiceForm.vue';
 import ServiceCard from './components/ServiceCard.vue';
 import HistoryModal from './components/HistoryModal.vue';
 import DocsButton from './components/DocsButton.vue';
+import ApiKeySettings from './components/ApiKeySettings.vue';
 
 const services = ref([]);
 const isSubmitting = ref(false);
@@ -31,7 +33,7 @@ const fetchStatus = async () => {
 };
 
 const fetchHistory = async (serviceName) => {
-  if (!serviceName) return toast.error("Nome do serviço inválido");
+  if (!serviceName) return showToast("Nome do serviço inválido", "error");
   loadingHistory.value = true;
   try {
     const res = await api.get(`/history/${serviceName}`);
@@ -74,10 +76,31 @@ const deleteService = async (id) => {
   }
 };
 
+const upsertService = (update) => {
+  const idx = services.value.findIndex(s => s.id === update.id);
+  if (idx === -1) {
+    services.value.push(update);
+  } else {
+    services.value[idx] = update;
+  }
+};
+
+useServiceSocket({
+  onSnapshot: (snapshot) => {
+    services.value = Array.isArray(snapshot) ? snapshot.filter(s => s.name) : [];
+  },
+  onUpdate: (update) => {
+    if (update?.name) upsertService(update);
+  },
+});
+
 onMounted(() => {
   fetchStatus();
-  setInterval(fetchStatus, 10000);
+  // Resilience fallback in case the socket connection drops silently.
+  setInterval(fetchStatus, 60000);
 });
+
+defineExpose({ fetchHistory });
 </script>
 
 <template>
@@ -93,6 +116,7 @@ onMounted(() => {
     <div class="bg-[#1a1a1a] p-10 shadow-xl mb-12 flex flex-col items-center w-full relative">
 
       <DocsButton />
+      <ApiKeySettings />
 
       <ServiceForm :isSubmitting="isSubmitting" @add="addService" />
     </div>
@@ -100,7 +124,7 @@ onMounted(() => {
     <div class="px-4">
       <div class="max-w-[1400px] mx-auto">
         <div v-if="services.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ServiceCard v-for="service in services" :key="service.id" :service="service" @openHistory="fetchHistory" @deleteService="deleteService"/>
+          <ServiceCard v-for="service in services" :key="service.id" :service="service" @openHistory="fetchHistory" @deleteService="deleteService" @serviceUpdated="fetchStatus"/>
         </div>
 
         <div v-else class="text-center p-20 bg-white/50 rounded-[2rem] border-2 border-dashed border-gray-300">

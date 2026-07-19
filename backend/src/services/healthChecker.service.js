@@ -5,15 +5,19 @@ const { sendAlert } = require("./alert.service");
 const { requestDuration, serviceUp } = require("./realTimeMetrics.service");
 const { requestService } = require("./request.service");
 const { hasStateChanged } = require("./alertState.service");
+const { toServiceStatusPayload } = require("../utils/serviceMapper");
+const logger = require("../utils/logger");
 
 /**
  * This service is responsible for performing health checks on the monitored services.
  * It checks the service's availability, response time, and SSL certificate status (if applicable).
  * After performing the check, it updates the service's status in the database, logs the result,
- * updates real-time metrics for Prometheus, and triggers alerts if there is a status change.
- * @param {*} service 
+ * updates real-time metrics for Prometheus, emits a Socket.IO update, and triggers alerts if there
+ * is a status change.
+ * @param {*} service
+ * @param {*} io Socket.IO server instance, used to push real-time updates to connected clients.
  */
-async function checkService(service) {
+async function checkService(service, io) {
   const start = Date.now();
   let status = "UP";
   let responseTime = null;
@@ -47,8 +51,8 @@ async function checkService(service) {
     serviceUp.labels(service.serviceName).set(healthy ? 1 : 0);
   } catch (err) {
     if (err.response && err.response.status === 403) {
-      status = "UP"; 
-      console.warn("Rate limit hit but service is reachable:", service.url);
+      status = "UP";
+      logger.warn(`Rate limit hit but service is reachable: ${service.url}`);
     } else {
       status = "DOWN";
     }
@@ -71,20 +75,31 @@ async function checkService(service) {
     sslExpiry,
   });
 
-  console.log(`[Worker] Serviço: ${service.serviceName} | Status Atual: ${status}`);
+  logger.info(`[Worker] Service: ${service.serviceName} | Current status: ${status}`);
+
+  if (io) {
+    io.emit("service:update", toServiceStatusPayload({
+      id: service.id,
+      serviceName: service.serviceName,
+      url: service.url,
+      status,
+      updatedAt: new Date(),
+      responseTime,
+      sslExpiry,
+    }));
+  }
 
   const stateChanged = await hasStateChanged(service.id, status);
-  console.log(`[Worker] O estado mudou? ${stateChanged}`);
 
   if (stateChanged) {
-    console.log(`[ALERTA] A preparar envio para o serviço ${service.serviceName}...`);
-    
+    logger.info(`[Alert] Preparing to notify for service ${service.serviceName}...`);
+
     const NotificationDestination = require("../models/notificationDestination.model");
-    const destinations = await NotificationDestination.findAll({ 
-      where: { serviceId: service.id } 
+    const destinations = await NotificationDestination.findAll({
+      where: { serviceId: service.id }
     });
 
-    console.log(`[ALERTA] Encontrados ${destinations.length} destinos na base de dados.`);
+    logger.info(`[Alert] Found ${destinations.length} destinations in the database.`);
 
     await sendAlert(service.serviceName, status, destinations);
   }
