@@ -56,6 +56,11 @@ services:
           type: web
           name: watchdog-backend
           property: host
+      - key: VITE_DOCS_URL
+        fromService:
+          type: web
+          name: watchdog-docs
+          property: host
 
   # 3. DOCUMENTAÇÃO (VitePress)
   - type: web
@@ -67,6 +72,11 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PANEL_URL
+        fromService:
+          type: web
+          name: watchdog-frontend
+          property: host
 
 # 4. BASE DE DADOS (PostgreSQL)
 databases:

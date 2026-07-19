@@ -44,25 +44,23 @@ services:
       context: ./frontend
       args:
         - VITE_API_URL=${VITE_API_URL}
+        - VITE_DOCS_URL=${VITE_DOCS_URL}
     container_name: watchdog-frontend
     restart: always
     ports:
-      - "80:80" 
+      - "80:80"
     depends_on:
       - backend
   docs:
     build:
       context: ./backend
       dockerfile: Dockerfile.docs
+      args:
+        - PANEL_URL=${PANEL_URL}
     container_name: watchdog-docs
     restart: always
     ports:
-      - "5174:5173"
-    volumes:
-      - ./backend:/app # Mapeia a pasta backend para o container
-      - /app/node_modules # Protege os node_modules do container
-    environment:
-      - NODE_ENV=development
+      - "5174:80"
 
   prometheus:
     image: prom/prometheus

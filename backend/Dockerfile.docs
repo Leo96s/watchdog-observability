@@ -1,19 +1,22 @@
-FROM node:20-slim
+FROM node:20-alpine AS build
+
+ARG PANEL_URL
+ENV PANEL_URL=$PANEL_URL
 
 WORKDIR /app
 
-# Copia os ficheiros de dependências
 COPY package*.json ./
+RUN npm ci
 
-# Instala as dependências
-RUN npm install
-
-# Copia o resto dos ficheiros (incluindo a pasta docs)
 COPY . .
+RUN npm run docs:build
 
-# Expõe a porta padrão do VitePress dev
-EXPOSE 5173
+FROM nginx:stable-alpine
+RUN apk add --no-cache curl
+COPY --from=build /app/Docs/.vitepress/dist /usr/share/nginx/html
+EXPOSE 80
 
-# Comando para rodar o VitePress
-# Nota: usamos --host para permitir conexões externas ao container
-CMD ["npm", "run", "docs:dev", "--", "--host"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:80 || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

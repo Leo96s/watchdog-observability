@@ -1,5 +1,19 @@
 import { defineConfig } from 'vitepress'
 
+// Render's fromService/property:host only gives the internal short service
+// name (e.g. "watchdog-frontend-m48x"), not a resolvable public hostname -
+// append ".onrender.com" when the value has no scheme and no dot.
+function resolvePanelUrl(rawUrl?: string): string {
+  if (!rawUrl) return 'http://localhost:80'
+
+  let host = rawUrl
+  if (!/^https?:\/\//i.test(host) && !host.includes('.')) {
+    host = `${host}.onrender.com`
+  }
+
+  return /^https?:\/\//i.test(host) ? host : `https://${host}`
+}
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Watchdog Docs",
@@ -7,7 +21,7 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Painel', link: 'http://localhost:80' }
+      { text: 'Painel', link: resolvePanelUrl(process.env.PANEL_URL) }
     ],
     sidebar: [
       {
