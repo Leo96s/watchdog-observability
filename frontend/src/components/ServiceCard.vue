@@ -30,13 +30,13 @@ const isEditModalOpen = ref(false);
                         <Pencil :size="20" />
                     </button>
 
-                    <button @click="$emit('openHistory', service.name)"
+                    <button @click.stop="$emit('openHistory', service.name)"
                         class="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-all cursor-pointer"
                         title="Ver Histórico">
                         <History :size="20" />
                     </button>
 
-                    <button @click="$emit('deleteService', service.id)"
+                    <button @click.stop="$emit('deleteService', service.id)"
                         class="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all cursor-pointer">
                         <Trash2 :size="20" />
                     </button>
