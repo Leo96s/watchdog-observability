@@ -69,8 +69,8 @@ const gradId = computed(() => `wd-grad-${props.service.id}`);
 
 <template>
   <div @click="isAlertOpen = true"
-    class="relative rounded-[18px] p-[22px] overflow-hidden cursor-pointer border border-white/[.07] wd-card-in transition-all hover:-translate-y-[3px] hover:border-[#3b82f659]"
-    style="background: linear-gradient(165deg,#161b26,#12161f);"
+    class="relative rounded-[18px] p-[22px] overflow-hidden cursor-pointer border border-[var(--wd-tint)]/[.07] wd-card-in transition-all hover:-translate-y-[3px] hover:border-[#3b82f659]"
+    style="background: linear-gradient(165deg,var(--wd-surface-1),var(--wd-card-2));"
     :style="`animation-delay:${(index || 0) * 70}ms`">
 
     <AddAlertModal :service="service" :isOpen="isAlertOpen" @close="isAlertOpen = false" />
@@ -86,24 +86,24 @@ const gradId = computed(() => `wd-grad-${props.service.id}`);
           <span class="w-[11px] h-[11px] rounded-full shrink-0" :class="isUp ? 'wd-pulse-up' : 'wd-pulse-down'" :style="`background:${color}`"></span>
           <h3 class="m-0 text-[17px] font-extrabold tracking-[-.01em] truncate">{{ service.name }}</h3>
         </div>
-        <div class="text-[12px] text-[#6b7183] font-mono mt-1.5 truncate">@{{ service.url }}</div>
+        <div class="text-[12px] text-[var(--wd-text-muted)] font-mono mt-1.5 truncate">@{{ service.url }}</div>
       </div>
       <div class="flex gap-1 shrink-0">
         <button @click.stop="$emit('openHistory', service.name)" :title="t.recentHistory"
-          class="w-8 h-8 border-none rounded-[9px] bg-white/[.04] text-[#6b7183] flex items-center justify-center cursor-pointer transition-all hover:bg-[#3b82f629] hover:text-[#60a5fa]"><History :size="16" /></button>
+          class="w-8 h-8 border-none rounded-[9px] bg-[var(--wd-tint)]/[.04] text-[var(--wd-text-muted)] flex items-center justify-center cursor-pointer transition-all hover:bg-[#3b82f629] hover:text-[#60a5fa]"><History :size="16" /></button>
         <button @click.stop="isEditOpen = true" title="Edit"
-          class="w-8 h-8 border-none rounded-[9px] bg-white/[.04] text-[#6b7183] flex items-center justify-center cursor-pointer transition-all hover:bg-[#3b82f629] hover:text-[#60a5fa]"><Pencil :size="16" /></button>
+          class="w-8 h-8 border-none rounded-[9px] bg-[var(--wd-tint)]/[.04] text-[var(--wd-text-muted)] flex items-center justify-center cursor-pointer transition-all hover:bg-[#3b82f629] hover:text-[#60a5fa]"><Pencil :size="16" /></button>
         <button @click.stop="$emit('deleteService', service.id)" :title="t.remove"
-          class="w-8 h-8 border-none rounded-[9px] bg-white/[.04] text-[#6b7183] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><Trash2 :size="16" /></button>
+          class="w-8 h-8 border-none rounded-[9px] bg-[var(--wd-tint)]/[.04] text-[var(--wd-text-muted)] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><Trash2 :size="16" /></button>
       </div>
     </div>
 
     <!-- latency + sparkline -->
     <div class="flex items-end justify-between mt-[18px]">
       <div>
-        <div class="text-[10px] tracking-[.12em] uppercase text-[#6b7183] font-bold">{{ t.latency }}</div>
+        <div class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-muted)] font-bold">{{ t.latency }}</div>
         <div class="text-[24px] font-extrabold font-mono leading-none" :style="`color:${color}`">
-          {{ curLatency ?? '—' }}<span v-if="curLatency != null" class="text-[13px] text-[#6b7183] font-semibold">ms</span>
+          {{ curLatency ?? '—' }}<span v-if="curLatency != null" class="text-[13px] text-[var(--wd-text-muted)] font-semibold">ms</span>
         </div>
       </div>
       <svg v-if="hasSpark" width="150" height="46" viewBox="0 0 220 46" preserveAspectRatio="none" style="overflow: visible;">
@@ -121,7 +121,7 @@ const gradId = computed(() => `wd-grad-${props.service.id}`);
     <!-- uptime bars -->
     <div class="mt-[18px]">
       <div class="flex items-center justify-between mb-[7px]">
-        <span class="text-[10px] tracking-[.12em] uppercase text-[#6b7183] font-bold">{{ t.uptime }}</span>
+        <span class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-muted)] font-bold">{{ t.uptime }}</span>
         <span v-if="uptimePct != null" class="text-[12px] font-extrabold font-mono" :style="`color:${color}`">{{ uptimePct }}%</span>
       </div>
       <div class="flex gap-0.5 h-[22px] items-end">
@@ -130,7 +130,7 @@ const gradId = computed(() => `wd-grad-${props.service.id}`);
     </div>
 
     <!-- footer -->
-    <div class="flex items-center justify-between mt-[18px] pt-3.5 border-t border-white/[.06]">
+    <div class="flex items-center justify-between mt-[18px] pt-3.5 border-t border-[var(--wd-tint)]/[.06]">
       <span class="inline-flex items-center gap-1.5 text-[11px] font-extrabold tracking-[.06em] uppercase px-2.5 py-[5px] rounded-full"
         :style="`background:${isUp ? 'rgba(52,211,153,.13)' : 'rgba(248,113,113,.13)'};color:${color}`">
         {{ isUp ? t.opStatus : t.downStatus }}

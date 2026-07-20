@@ -56,38 +56,38 @@ const handleSave = async () => {
 </script>
 
 <template>
-  <div v-if="isOpen" @click="$emit('close')" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md wd-overlay-in">
-    <div @click.stop class="w-full max-w-[460px] rounded-[26px] border border-white/[.09] p-8 wd-modal-in"
-      style="background: linear-gradient(165deg,#161b26,#111520); box-shadow: 0 40px 80px -20px rgba(0,0,0,.8);">
+  <div v-if="isOpen" @click="$emit('close')" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-[var(--wd-overlay)] backdrop-blur-md wd-overlay-in">
+    <div @click.stop class="w-full max-w-[460px] rounded-[26px] border border-[var(--wd-tint)]/[.09] p-8 wd-modal-in"
+      style="background: linear-gradient(165deg,var(--wd-surface-1),var(--wd-surface-2)); box-shadow: 0 40px 80px -20px var(--wd-shadow);">
 
       <div class="flex items-center justify-between mb-[22px]">
         <h2 class="m-0 text-[19px] font-extrabold flex items-center gap-2.5"><Pencil :size="20" class="text-[#60a5fa]" />Editar serviço</h2>
-        <button @click="$emit('close')" class="w-[34px] h-[34px] border-none rounded-[10px] bg-white/[.05] text-[#8a90a0] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><X :size="18" /></button>
+        <button @click="$emit('close')" class="w-[34px] h-[34px] border-none rounded-[10px] bg-[var(--wd-tint)]/[.05] text-[var(--wd-text-subtle)] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><X :size="18" /></button>
       </div>
 
       <div class="flex flex-col gap-4">
         <div>
-          <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Nome</label>
-          <input v-model="form.name" class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] px-[15px] py-[13px] text-[#e8eaf0] text-sm outline-none transition-colors focus:border-[#3b82f699]" />
+          <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">Nome</label>
+          <input v-model="form.name" class="w-full mt-[7px] bg-[var(--wd-input-bg)] border border-[var(--wd-tint)]/[.08] rounded-[13px] px-[15px] py-[13px] text-[var(--wd-text)] text-sm outline-none transition-colors focus:border-[#3b82f699]" />
         </div>
         <div>
-          <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">URL</label>
-          <input v-model="form.url" class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] px-[15px] py-[13px] text-[#e8eaf0] font-mono text-[13px] outline-none transition-colors focus:border-[#3b82f699]" />
+          <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">URL</label>
+          <input v-model="form.url" class="w-full mt-[7px] bg-[var(--wd-input-bg)] border border-[var(--wd-tint)]/[.08] rounded-[13px] px-[15px] py-[13px] text-[var(--wd-text)] font-mono text-[13px] outline-none transition-colors focus:border-[#3b82f699]" />
         </div>
         <div class="flex gap-3">
           <div class="flex-1">
-            <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Método</label>
+            <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">Método</label>
             <div class="mt-[7px]"><BaseSelect v-model="form.method" :options="methodOptions" /></div>
           </div>
           <div class="w-32">
-            <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Status esperado</label>
-            <input v-model="form.expectedStatus" type="number" class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] px-[15px] py-[13px] text-[#e8eaf0] text-sm outline-none focus:border-[#3b82f699]" />
+            <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">Status esperado</label>
+            <input v-model="form.expectedStatus" type="number" class="w-full mt-[7px] bg-[var(--wd-input-bg)] border border-[var(--wd-tint)]/[.08] rounded-[13px] px-[15px] py-[13px] text-[var(--wd-text)] text-sm outline-none focus:border-[#3b82f699]" />
           </div>
         </div>
         <div>
-          <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Headers (JSON, opcional)</label>
+          <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">Headers (JSON, opcional)</label>
           <textarea v-model="form.headers" rows="3" placeholder='{ "Authorization": "Bearer ..." }'
-            class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] p-4 text-[#e8eaf0] outline-none text-xs font-mono focus:border-[#3b82f699]"></textarea>
+            class="w-full mt-[7px] bg-[var(--wd-input-bg)] border border-[var(--wd-tint)]/[.08] rounded-[13px] p-4 text-[var(--wd-text)] outline-none text-xs font-mono focus:border-[#3b82f699]"></textarea>
         </div>
         <p v-if="error" class="text-[#f87171] text-xs text-center">{{ error }}</p>
         <button @click="handleSave" :disabled="loading"

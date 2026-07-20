@@ -49,7 +49,7 @@ onBeforeUnmount(() => {
     <!-- Trigger -->
     <div
       @click="toggle"
-      class="w-full bg-[#1a1a1a] text-white rounded-2xl p-4 py-2 cursor-pointer flex justify-between items-center transition hover:bg-[#323232]"
+      class="w-full bg-[var(--wd-input-bg)] text-[var(--wd-text)] border border-[var(--wd-tint)]/10 rounded-2xl p-4 py-2 cursor-pointer flex justify-between items-center transition hover:bg-[var(--wd-surface-1)]"
     >
       <span>
         {{ selectedLabel || placeholder }}
@@ -70,16 +70,16 @@ onBeforeUnmount(() => {
     <!-- Dropdown -->
     <div
       v-if="isOpen"
-      class="absolute left-0 mt-2 w-full bg-[#1f1f1f] rounded-2xl shadow-lg border border-white/10 overflow-hidden z-50"
+      class="absolute left-0 mt-2 w-full bg-[var(--wd-surface-1)] rounded-2xl shadow-lg border border-[var(--wd-tint)]/10 overflow-hidden z-50"
     >
       <div
         v-for="option in options"
         :key="option.value"
         @click="selectOption(option.value)"
-        class="px-4 py-3 cursor-pointer transition hover:bg-[#2e2e2e]"
+        class="px-4 py-3 cursor-pointer transition hover:bg-[var(--wd-input-bg)]"
         :class="{
           'bg-[#3b82f6]/20 text-[#3b82f6]': modelValue === option.value,
-          'text-white': modelValue !== option.value
+          'text-[var(--wd-text)]': modelValue !== option.value
         }"
       >
         {{ option.label }}
