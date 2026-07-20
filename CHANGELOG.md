@@ -1,3 +1,5 @@
+## v1.8.1 - 2026-07-20
+* fix(frontend): stop loading Vuetify to fix Tailwind styling
 ## v1.8.0 - 2026-07-20
 * feat(frontend): redesign dashboard with dark theme and sidebar nav
 ## v1.7.6 - 2026-07-19
