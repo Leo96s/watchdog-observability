@@ -6,6 +6,5 @@ npm-debug.log
 .history
 .git
 .gitignore
-Docs
 coverage
 *.test.js
