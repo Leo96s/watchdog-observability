@@ -6,7 +6,7 @@ import EditServiceModal from './EditServiceModal.vue';
 import { useI18n } from '../i18n';
 
 const props = defineProps(['service', 'index']);
-defineEmits(['openHistory', 'deleteService', 'serviceUpdated']);
+defineEmits(['openHistory', 'deleteService', 'serviceUpdated', 'feedback']);
 const { t } = useI18n();
 
 const isAlertOpen = ref(false);
@@ -73,8 +73,8 @@ const gradId = computed(() => `wd-grad-${props.service.id}`);
     style="background: linear-gradient(165deg,var(--wd-surface-1),var(--wd-card-2));"
     :style="`animation-delay:${(index || 0) * 70}ms`">
 
-    <AddAlertModal :service="service" :isOpen="isAlertOpen" @close="isAlertOpen = false" />
-    <EditServiceModal :service="service" :isOpen="isEditOpen" @close="isEditOpen = false" @updated="$emit('serviceUpdated')" />
+    <AddAlertModal :service="service" :isOpen="isAlertOpen" @close="isAlertOpen = false" @feedback="$emit('feedback', $event)" />
+    <EditServiceModal :service="service" :isOpen="isEditOpen" @close="isEditOpen = false" @updated="$emit('serviceUpdated')" @feedback="$emit('feedback', $event)" />
 
     <div class="absolute left-0 top-0 bottom-0 w-1" :style="`background:${color}`"></div>
     <div v-if="flash" class="absolute inset-0 rounded-[18px] pointer-events-none wd-flash" :style="`background:${isUp ? 'rgba(52,211,153,.18)' : 'rgba(248,113,113,.18)'}`"></div>

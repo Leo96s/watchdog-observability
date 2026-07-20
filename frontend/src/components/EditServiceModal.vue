@@ -6,7 +6,7 @@ import BaseSelect from './BaseSelect.vue';
 import { useI18n } from '../i18n';
 
 const props = defineProps(['service', 'isOpen']);
-const emit = defineEmits(['close', 'updated']);
+const emit = defineEmits(['close', 'updated', 'feedback']);
 const { t } = useI18n();
 
 const methodOptions = [
@@ -49,6 +49,7 @@ const handleSave = async () => {
       expectedStatus: Number(form.value.expectedStatus) || 200,
       headers: parsedHeaders,
     });
+    emit('feedback', { type: 'success', message: t.value.serviceUpdated });
     emit('updated');
     emit('close');
   } catch (err) {

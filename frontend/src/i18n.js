@@ -34,6 +34,9 @@ export const messages = {
     alerts: 'Alertas', alertTypeLabel: 'Tipo de alerta', webhookOption: 'Discord / Slack Webhook', emailOption: 'E-mail',
     destinationLabel: 'Destino (URL ou email)', discordPlaceholder: 'https://discord.com/api/webhooks/…',
     activateAlert: 'Ativar alerta',
+    alertAdded: 'Alerta ativado', alertAddError: 'Não foi possível ativar o alerta',
+    alertRemoved: 'Alerta removido', alertRemoveError: 'Não foi possível remover o alerta',
+    serviceUpdated: 'Serviço atualizado',
   },
   en: {
     subtitle: 'Real-time monitoring', search: 'Search service…', addService: 'Add service',
@@ -63,6 +66,9 @@ export const messages = {
     alerts: 'Alerts', alertTypeLabel: 'Alert type', webhookOption: 'Discord / Slack Webhook', emailOption: 'E-mail',
     destinationLabel: 'Destination (URL or email)', discordPlaceholder: 'https://discord.com/api/webhooks/…',
     activateAlert: 'Activate alert',
+    alertAdded: 'Alert activated', alertAddError: 'Failed to activate alert',
+    alertRemoved: 'Alert removed', alertRemoveError: 'Failed to remove alert',
+    serviceUpdated: 'Service updated',
   },
   es: {
     subtitle: 'Monitorización en tiempo real', search: 'Buscar servicio…', addService: 'Añadir servicio',
@@ -92,6 +98,9 @@ export const messages = {
     alerts: 'Alertas', alertTypeLabel: 'Tipo de alerta', webhookOption: 'Discord / Slack Webhook', emailOption: 'E-mail',
     destinationLabel: 'Destino (URL o email)', discordPlaceholder: 'https://discord.com/api/webhooks/…',
     activateAlert: 'Activar alerta',
+    alertAdded: 'Alerta activada', alertAddError: 'No se pudo activar la alerta',
+    alertRemoved: 'Alerta eliminada', alertRemoveError: 'No se pudo eliminar la alerta',
+    serviceUpdated: 'Servicio actualizado',
   },
 };
 

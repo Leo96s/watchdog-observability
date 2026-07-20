@@ -6,7 +6,7 @@ import BaseSelect from './BaseSelect.vue';
 import { useI18n } from '../i18n';
 
 const props = defineProps(['service', 'isOpen']);
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'feedback']);
 const { t } = useI18n();
 const alertTypeOptions = computed(() => [
   { label: t.value.webhookOption, value: 'webhook' },
@@ -35,15 +35,20 @@ const handleAdd = async () => {
     await api.post(`/services/${props.service.id}/notifications`, { type: type.value, value: value.value });
     value.value = '';
     await fetchDestinations();
-  } catch { console.error('Erro ao adicionar alerta'); }
-  finally { loading.value = false; }
+    emit('feedback', { type: 'success', message: t.value.alertAdded });
+  } catch (err) {
+    emit('feedback', { type: 'error', message: err.response?.data?.error || t.value.alertAddError });
+  } finally { loading.value = false; }
 };
 
 const removeDestination = async (notifId) => {
   try {
     await api.delete(`/services/${props.service.id}/notifications/${notifId}`);
     destinations.value = destinations.value.filter((d) => d.id !== notifId);
-  } catch { console.error('Erro ao remover alerta'); }
+    emit('feedback', { type: 'success', message: t.value.alertRemoved });
+  } catch (err) {
+    emit('feedback', { type: 'error', message: err.response?.data?.error || t.value.alertRemoveError });
+  }
 };
 </script>
 

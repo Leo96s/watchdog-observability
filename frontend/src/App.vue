@@ -67,7 +67,7 @@ const addService = async (payload) => {
     panel.value = null;
     await fetchStatus();
   } catch (err) {
-    showToast('Erro ao comunicar com o servidor.', 'error');
+    showToast(err.response?.data?.error || 'Erro ao comunicar com o servidor.', 'error');
   } finally {
     isSubmitting.value = false;
   }
@@ -82,7 +82,7 @@ const deleteService = async (id) => {
     showToast(`${svc?.name ?? ''} — ${t.value.evRemoved}`);
     await fetchStatus();
   } catch (err) {
-    showToast('Falha ao remover o serviço', 'error');
+    showToast(err.response?.data?.error || 'Falha ao remover o serviço', 'error');
   }
 };
 
@@ -303,7 +303,8 @@ const configureApiKey = () => {
         <template v-else>
           <div v-if="visibleServices.length" class="grid gap-[18px]" style="grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));">
             <ServiceCard v-for="(service, i) in visibleServices" :key="service.id" :service="service" :index="i"
-              @openHistory="fetchHistory" @deleteService="deleteService" @serviceUpdated="fetchStatus" />
+              @openHistory="fetchHistory" @deleteService="deleteService" @serviceUpdated="fetchStatus"
+              @feedback="(f) => showToast(f.message, f.type)" />
           </div>
           <div v-else-if="services.length" class="text-center py-[70px] text-[var(--wd-text-muted)]">
             <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[var(--wd-tint)]/[.04] flex items-center justify-center text-[var(--wd-text-disabled)]"><Search :size="26" /></div>
