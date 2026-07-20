@@ -7,6 +7,7 @@ const { t, locale } = useI18n();
 </script>
 
 <template>
+  <Teleport to="body">
   <div v-if="isOpen" @click="$emit('close')" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-[var(--wd-overlay)] backdrop-blur-md wd-overlay-in">
     <div @click.stop class="w-full max-w-[600px] max-h-[80vh] rounded-[26px] border border-[var(--wd-tint)]/[.09] p-8 flex flex-col wd-modal-in"
       style="background: linear-gradient(165deg,var(--wd-surface-1),var(--wd-surface-2)); box-shadow: 0 40px 80px -20px var(--wd-shadow);">
@@ -32,4 +33,5 @@ const { t, locale } = useI18n();
       </div>
     </div>
   </div>
+  </Teleport>
 </template>

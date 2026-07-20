@@ -1,11 +1,17 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { X, Bell, Send, Trash2 } from 'lucide-vue-next';
 import api from '../services/api.service';
 import BaseSelect from './BaseSelect.vue';
+import { useI18n } from '../i18n';
 
 const props = defineProps(['service', 'isOpen']);
 const emit = defineEmits(['close']);
+const { t } = useI18n();
+const alertTypeOptions = computed(() => [
+  { label: t.value.webhookOption, value: 'webhook' },
+  { label: t.value.emailOption, value: 'email' },
+]);
 
 const type = ref('webhook');
 const value = ref('');
@@ -42,12 +48,13 @@ const removeDestination = async (notifId) => {
 </script>
 
 <template>
+  <Teleport to="body">
   <div v-if="isOpen" @click="$emit('close')" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-[var(--wd-overlay)] backdrop-blur-md wd-overlay-in">
     <div @click.stop class="w-full max-w-[460px] rounded-[26px] border border-[var(--wd-tint)]/[.09] p-8 wd-modal-in"
       style="background: linear-gradient(165deg,var(--wd-surface-1),var(--wd-surface-2)); box-shadow: 0 40px 80px -20px var(--wd-shadow);">
 
       <div class="flex items-center justify-between mb-1.5">
-        <h2 class="m-0 text-[19px] font-extrabold flex items-center gap-2.5"><Bell :size="20" class="text-[#60a5fa]" />Alertas</h2>
+        <h2 class="m-0 text-[19px] font-extrabold flex items-center gap-2.5"><Bell :size="20" class="text-[#60a5fa]" />{{ t.alerts }}</h2>
         <button @click="$emit('close')" class="w-[34px] h-[34px] border-none rounded-[10px] bg-[var(--wd-tint)]/[.05] text-[var(--wd-text-subtle)] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><X :size="18" /></button>
       </div>
       <p class="m-0 mb-5 text-[12px] text-[var(--wd-text-muted)] font-mono">@{{ service?.url }}</p>
@@ -63,22 +70,23 @@ const removeDestination = async (notifId) => {
 
       <div class="flex flex-col gap-3.5">
         <div>
-          <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">Tipo de alerta</label>
+          <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">{{ t.alertTypeLabel }}</label>
           <div class="mt-[7px]">
-            <BaseSelect v-model="type" :options="[{ label: 'Discord / Slack Webhook', value: 'webhook' }, { label: 'E-mail', value: 'email' }]" />
+            <BaseSelect v-model="type" :options="alertTypeOptions" />
           </div>
         </div>
         <div>
-          <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">Destino (URL ou email)</label>
-          <input v-model="value" :placeholder="type === 'email' ? 'exemplo@mail.com' : 'https://discord.com/api/webhooks/…'"
+          <label class="text-[10px] tracking-[.12em] uppercase text-[var(--wd-text-faint)] font-bold ml-1">{{ t.destinationLabel }}</label>
+          <input v-model="value" :placeholder="type === 'email' ? t.emailPlaceholder : t.discordPlaceholder"
             class="w-full mt-[7px] bg-[var(--wd-input-bg)] border border-[var(--wd-tint)]/[.08] rounded-[13px] px-[15px] py-[13px] text-[var(--wd-text)] font-mono text-[13px] outline-none transition-colors focus:border-[#3b82f699]" />
         </div>
         <button @click="handleAdd" :disabled="loading"
           class="mt-0.5 w-full bg-gradient-to-br from-[#3b82f6] to-[#2563eb] text-white border-none rounded-[13px] py-3.5 font-bold text-sm cursor-pointer transition-transform hover:-translate-y-px active:scale-[.98] disabled:opacity-50 flex items-center justify-center gap-2"
           style="box-shadow: 0 10px 24px -10px rgba(59,130,246,.9);">
-          <Send :size="17" v-if="!loading" />{{ loading ? 'A guardar…' : 'Ativar alerta' }}
+          <Send :size="17" v-if="!loading" />{{ loading ? t.saving : t.activateAlert }}
         </button>
       </div>
     </div>
   </div>
+  </Teleport>
 </template>

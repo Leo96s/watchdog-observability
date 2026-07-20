@@ -5,7 +5,12 @@ import ServiceForm from './ServiceForm.vue';
 // O ServiceForm passou a ser um modal (isOpen/close); o botão de fecho (X) é
 // o primeiro botão do template, seguido de "+ alertas", (linhas de alerta
 // removíveis), "opções avançadas" e por fim o botão de submissão.
-const mountOpen = () => mount(ServiceForm, { props: { isSubmitting: false, isOpen: true } });
+// Teleport target isn't part of the mounted wrapper's DOM tree, so it's
+// stubbed to keep querying via wrapper.find/findAll working.
+const mountOpen = () => mount(ServiceForm, {
+  props: { isSubmitting: false, isOpen: true },
+  global: { stubs: { teleport: true } },
+});
 const submitButton = (wrapper) => wrapper.findAll('button').at(-1);
 
 describe('ServiceForm', () => {
@@ -62,6 +67,6 @@ describe('ServiceForm', () => {
     await submitButton(wrapper).trigger('click');
 
     expect(wrapper.emitted('add')).toBeUndefined();
-    expect(wrapper.text()).toContain('Headers must be valid JSON');
+    expect(wrapper.text()).toContain('Os headers têm de ser JSON válido');
   });
 });

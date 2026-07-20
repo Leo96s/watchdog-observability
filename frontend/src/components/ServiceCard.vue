@@ -91,7 +91,7 @@ const gradId = computed(() => `wd-grad-${props.service.id}`);
       <div class="flex gap-1 shrink-0">
         <button @click.stop="$emit('openHistory', service.name)" :title="t.recentHistory"
           class="w-8 h-8 border-none rounded-[9px] bg-[var(--wd-tint)]/[.04] text-[var(--wd-text-muted)] flex items-center justify-center cursor-pointer transition-all hover:bg-[#3b82f629] hover:text-[#60a5fa]"><History :size="16" /></button>
-        <button @click.stop="isEditOpen = true" title="Edit"
+        <button @click.stop="isEditOpen = true" :title="t.edit"
           class="w-8 h-8 border-none rounded-[9px] bg-[var(--wd-tint)]/[.04] text-[var(--wd-text-muted)] flex items-center justify-center cursor-pointer transition-all hover:bg-[#3b82f629] hover:text-[#60a5fa]"><Pencil :size="16" /></button>
         <button @click.stop="$emit('deleteService', service.id)" :title="t.remove"
           class="w-8 h-8 border-none rounded-[9px] bg-[var(--wd-tint)]/[.04] text-[var(--wd-text-muted)] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><Trash2 :size="16" /></button>
