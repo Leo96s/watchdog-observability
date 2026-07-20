@@ -1,163 +1,109 @@
 <script setup>
 import { ref } from 'vue';
-import { Activity, Plus, Loader2, Bell, X, Settings2 } from 'lucide-vue-next';
+import { Plus, Loader2, Bell, X, Settings2 } from 'lucide-vue-next';
 import BaseSelect from './BaseSelect.vue';
 
-const props = defineProps(['isSubmitting']);
-const emit = defineEmits(['add']);
+const props = defineProps(['isSubmitting', 'isOpen']);
+const emit = defineEmits(['add', 'close']);
 
 const notificationOptions = [
   { label: 'Webhook', value: 'webhook' },
-  { label: 'Email', value: 'email' }
+  { label: 'Email', value: 'email' },
 ];
-
 const methodOptions = [
-  { label: 'GET', value: 'GET' },
-  { label: 'POST', value: 'POST' },
-  { label: 'PUT', value: 'PUT' },
-  { label: 'HEAD', value: 'HEAD' },
+  { label: 'GET', value: 'GET' }, { label: 'POST', value: 'POST' },
+  { label: 'PUT', value: 'PUT' }, { label: 'HEAD', value: 'HEAD' },
 ];
 
 const showAdvanced = ref(false);
 const advancedError = ref('');
+const newService = ref({ name: '', url: '', notifications: [], method: 'GET', expectedStatus: 200, headers: '' });
 
-const newService = ref({
-  name: '',
-  url: '',
-  notifications: [], // Array para e-mails e webhooks
-  method: 'GET',
-  expectedStatus: 200,
-  headers: '',
-});
-
-const addNotification = () => {
-  newService.value.notifications.push({ type: 'webhook', value: '' });
-};
-
-const removeNotification = (index) => {
-  newService.value.notifications.splice(index, 1);
-};
+const addNotification = () => newService.value.notifications.push({ type: 'webhook', value: '' });
+const removeNotification = (i) => newService.value.notifications.splice(i, 1);
 
 const handleSubmit = () => {
   if (!newService.value.name || !newService.value.url) return;
-
   advancedError.value = '';
   let headers;
   if (newService.value.headers.trim()) {
-    try {
-      headers = JSON.parse(newService.value.headers);
-    } catch {
-      advancedError.value = 'Headers must be valid JSON';
-      return;
-    }
+    try { headers = JSON.parse(newService.value.headers); }
+    catch { advancedError.value = 'Headers must be valid JSON'; return; }
   }
-
-  // Filtra campos de notificação vazios antes de enviar
-  const payload = {
+  emit('add', {
     name: newService.value.name,
     url: newService.value.url,
-    notifications: newService.value.notifications.filter(n => n.value.trim() !== ''),
+    notifications: newService.value.notifications.filter((n) => n.value.trim() !== ''),
     method: newService.value.method,
     expectedStatus: Number(newService.value.expectedStatus) || 200,
     headers,
-  };
-
-  emit('add', payload);
-
+  });
   newService.value = { name: '', url: '', notifications: [], method: 'GET', expectedStatus: 200, headers: '' };
+  showAdvanced.value = false;
 };
 </script>
 
 <template>
-  <div class="bg-[#1a1a1a] p-10 shadow-2xl mb-12 flex flex-col items-center w-full">
-    <Activity class="text-[#3b82f6] mb-4" :size="32" />
-    <h1 class="text-4xl font-bold text-white mb-2 text-center">
-      Watchdog <span class="text-[#3b82f6]">Panel</span>
-    </h1>
-    <p class="text-gray-400 text-sm mb-8 font-medium uppercase tracking-widest">Real Time Monitorization</p>
+  <div v-if="isOpen" @click="$emit('close')" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md wd-overlay-in">
+    <div @click.stop class="w-full max-w-[480px] rounded-[26px] border border-white/[.09] p-8 wd-modal-in max-h-[88vh] overflow-y-auto"
+      style="background: linear-gradient(165deg,#161b26,#111520); box-shadow: 0 40px 80px -20px rgba(0,0,0,.8);">
 
-    <div class="w-full max-w-2xl space-y-4">
-      <div class="flex flex-col sm:flex-row gap-3 w-full justify-center items-center">
-        <input v-model="newService.name" placeholder="Service Name"
-          class="bg-[#333] border-none px-6 py-3 rounded-full text-white placeholder-gray-500 outline-none w-full sm:w-48 text-sm focus:ring-2 focus:ring-[#3b82f6] transition-all" />
+      <div class="flex items-center justify-between mb-[22px]">
+        <h2 class="m-0 text-[19px] font-extrabold flex items-center gap-2.5"><Plus :size="20" class="text-[#60a5fa]" />Novo serviço</h2>
+        <button @click="$emit('close')" class="w-[34px] h-[34px] border-none rounded-[10px] bg-white/[.05] text-[#8a90a0] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><X :size="18" /></button>
+      </div>
 
-        <input v-model="newService.url" placeholder="URL (http://...)"
-          class="bg-[#333] border-none px-6 py-3 rounded-full text-white placeholder-gray-500 outline-none w-full sm:flex-1 text-sm focus:ring-2 focus:ring-[#3b82f6] transition-all" />
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Nome do serviço</label>
+          <input v-model="newService.name" placeholder="Ex.: API Gateway"
+            class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] px-[15px] py-[13px] text-[#e8eaf0] text-sm outline-none transition-colors focus:border-[#3b82f699]" />
+        </div>
+        <div>
+          <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">URL</label>
+          <input v-model="newService.url" placeholder="https://…"
+            class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] px-[15px] py-[13px] text-[#e8eaf0] font-mono text-[13px] outline-none transition-colors focus:border-[#3b82f699]" />
+        </div>
+
+        <!-- alerts -->
+        <div>
+          <button @click="addNotification" type="button" class="text-[11px] text-[#8a90a0] hover:text-[#60a5fa] flex items-center gap-2 transition-colors font-bold uppercase tracking-tight">
+            <Bell :size="14" /> + Configurar alertas (Email/Webhook)
+          </button>
+          <div v-if="newService.notifications.length" class="mt-3 flex flex-col gap-2">
+            <div v-for="(notif, i) in newService.notifications" :key="i" class="flex gap-2 wd-row-in">
+              <div class="w-40 shrink-0"><BaseSelect v-model="notif.type" :options="notificationOptions" /></div>
+              <input v-model="notif.value" :placeholder="notif.type === 'email' ? 'example@email.com' : 'URL do Webhook'"
+                class="flex-1 bg-[#0e131c] border border-white/[.08] rounded-[13px] px-4 py-2.5 text-[#e8eaf0] text-xs outline-none focus:border-[#3b82f699]" />
+              <button @click="removeNotification(i)" class="text-[#6b7183] hover:text-[#f87171] p-2"><X :size="16" /></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- advanced -->
+        <div>
+          <button @click="showAdvanced = !showAdvanced" type="button" class="text-[11px] text-[#8a90a0] hover:text-[#60a5fa] flex items-center gap-2 transition-colors font-bold uppercase tracking-tight">
+            <Settings2 :size="14" /> {{ showAdvanced ? 'Ocultar opções avançadas' : 'Opções avançadas (método, status, headers)' }}
+          </button>
+          <div v-if="showAdvanced" class="mt-3 flex flex-col gap-3">
+            <div class="flex gap-3">
+              <div class="w-36"><BaseSelect v-model="newService.method" :options="methodOptions" /></div>
+              <input v-model="newService.expectedStatus" type="number" placeholder="Status esperado (200)"
+                class="flex-1 bg-[#0e131c] border border-white/[.08] rounded-[13px] px-4 py-2.5 text-[#e8eaf0] text-xs outline-none focus:border-[#3b82f699]" />
+            </div>
+            <textarea v-model="newService.headers" rows="3" placeholder='Headers (JSON), ex.: { "Authorization": "Bearer ..." }'
+              class="w-full bg-[#0e131c] border border-white/[.08] rounded-[13px] p-4 text-[#e8eaf0] outline-none text-xs font-mono focus:border-[#3b82f699]"></textarea>
+            <p v-if="advancedError" class="text-[#f87171] text-xs text-center">{{ advancedError }}</p>
+          </div>
+        </div>
 
         <button @click="handleSubmit" :disabled="isSubmitting"
-          class="bg-[#3b82f6]! hover:bg-[#2563eb]! text-white px-8 py-3 rounded-full font-bold text-sm flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer disabled:bg-gray-600">
-          <Plus v-if="!isSubmitting" :size="18" />
-          <Loader2 v-else class="animate-spin" :size="18" />
-          {{ isSubmitting ? 'A processar' : 'Adicionar' }}
+          class="mt-1.5 w-full bg-gradient-to-br from-[#3b82f6] to-[#2563eb] text-white border-none rounded-[13px] py-3.5 font-bold text-sm cursor-pointer transition-transform hover:-translate-y-px active:scale-[.98] disabled:opacity-50 flex items-center justify-center gap-2"
+          style="box-shadow: 0 10px 24px -10px rgba(59,130,246,.9);">
+          <Loader2 v-if="isSubmitting" class="animate-spin" :size="18" />
+          {{ isSubmitting ? 'A processar…' : 'Começar a monitorizar' }}
         </button>
-      </div>
-
-      <div class="flex flex-col items-center mt-6">
-        <button @click="addNotification" type="button"
-          class="text-xs text-white hover:text-[#3b82f6]! flex items-center gap-2 transition-colors font-semibold uppercase tracking-tighter">
-          <Bell :size="14" />
-          + Configure Alerts (Email/Webhook)
-        </button>
-
-        <div v-if="newService.notifications.length > 0" class="w-full mt-4 space-y-2">
-          <div v-for="(notif, index) in newService.notifications" :key="index"
-            class="flex gap-2 animate-in fade-in slide-in-from-top-1">
-
-            <div class="w-44 shrink-0">
-              <BaseSelect v-model="notif.type" :options="notificationOptions" class="rounded-full! shadow-sm" />
-            </div>
-
-            <input v-model="notif.value" :placeholder="notif.type === 'email' ? 'example@email.com' : 'URL of Webhook'"
-              class="flex-1 bg-[#2a2a2a] border-none px-5 py-2 rounded-full text-white text-xs outline-none focus:ring-1 focus:ring-[#3b82f6]" />
-
-            <button @click="removeNotification(index)" class="text-gray-500 hover:text-red-500 p-2">
-              <X :size="16" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col items-center mt-4">
-        <button @click="showAdvanced = !showAdvanced" type="button"
-          class="text-xs text-white hover:text-[#3b82f6]! flex items-center gap-2 transition-colors font-semibold uppercase tracking-tighter">
-          <Settings2 :size="14" />
-          {{ showAdvanced ? 'Hide advanced options' : 'Advanced options (method, expected status, headers)' }}
-        </button>
-
-        <div v-if="showAdvanced" class="w-full mt-4 space-y-3">
-          <div class="flex gap-3">
-            <div class="w-36">
-              <BaseSelect v-model="newService.method" :options="methodOptions" class="rounded-full!" />
-            </div>
-            <input v-model="newService.expectedStatus" type="number" placeholder="Expected status (200)"
-              class="flex-1 bg-[#2a2a2a] border-none px-5 py-2 rounded-full text-white text-xs outline-none focus:ring-1 focus:ring-[#3b82f6]" />
-          </div>
-
-          <textarea v-model="newService.headers" rows="3" placeholder='Headers (JSON), e.g. { "Authorization": "Bearer ..." }'
-            class="w-full bg-[#2a2a2a] text-white rounded-2xl p-4 border-none outline-none text-xs font-mono focus:ring-1 focus:ring-[#3b82f6]"></textarea>
-
-          <p v-if="advancedError" class="text-red-500 text-xs text-center">{{ advancedError }}</p>
-        </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Adiciona uma animação suave para os novos campos */
-.animate-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

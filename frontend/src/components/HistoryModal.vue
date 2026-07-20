@@ -1,43 +1,34 @@
 <script setup>
+import { Clock, X } from 'lucide-vue-next';
+import { useI18n } from '../i18n';
 defineProps(['isOpen', 'history']);
 defineEmits(['close']);
+const { t, locale } = useI18n();
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden shadow-2xl flex flex-col">
-      <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-        <h2 class="text-xl font-bold text-gray-800">Histórico Recente</h2>
-        <button @click="$emit('close')" class="text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+  <div v-if="isOpen" @click="$emit('close')" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md wd-overlay-in">
+    <div @click.stop class="w-full max-w-[600px] max-h-[80vh] rounded-[26px] border border-white/[.09] p-8 flex flex-col wd-modal-in"
+      style="background: linear-gradient(165deg,#161b26,#111520); box-shadow: 0 40px 80px -20px rgba(0,0,0,.8);">
+
+      <div class="flex items-center justify-between mb-[18px]">
+        <h2 class="m-0 text-[19px] font-extrabold flex items-center gap-2.5"><Clock :size="20" class="text-[#60a5fa]" />{{ t.recentHistory }}</h2>
+        <button @click="$emit('close')" class="w-[34px] h-[34px] border-none rounded-[10px] bg-white/[.05] text-[#8a90a0] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><X :size="18" /></button>
       </div>
 
-      <div class="p-6 overflow-y-auto">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="text-xs uppercase text-gray-400 font-bold border-b">
-              <th class="pb-3">Data/Hora</th>
-              <th class="pb-3 text-center">Status</th>
-              <th class="pb-3 text-right">Latência</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y">
-            <tr v-for="log in history" :key="log.id" class="text-sm">
-              <td class="py-3 text-gray-600">
-                {{ new Date(log.createdAt).toLocaleString() }}
-              </td>
-              <td class="py-3 text-center">
-                <span :class="log.status === 'UP' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
-                  class="px-2 py-1 rounded-full text-[10px] font-bold">
-                  {{ log.status }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-right text-xs font-mono text-gray-400">
-                {{ log.responseTime || '---' }}ms
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-if="history.length === 0" class="text-center py-10 text-gray-400">Sem registos no histórico.</p>
+      <div class="grid grid-cols-[1fr_auto_auto] gap-x-[18px] text-[10px] tracking-[.12em] uppercase text-[#6b7183] font-bold px-1 pb-2.5 border-b border-white/[.06]">
+        <span>{{ t.dateTime }}</span><span class="text-center">{{ t.statusCol }}</span><span class="text-right">{{ t.latencyCol }}</span>
+      </div>
+
+      <div class="overflow-y-auto">
+        <div v-for="(log, i) in history" :key="log.id"
+          class="grid grid-cols-[1fr_auto_auto] gap-x-[18px] items-center py-2.5 px-1 border-b border-white/[.04] wd-row-in" :style="`animation-delay:${Math.min(i,10)*35}ms`">
+          <span class="text-[13px] text-[#a9afbe] font-mono">{{ new Date(log.createdAt).toLocaleString(locale) }}</span>
+          <span class="justify-self-center text-[10px] font-extrabold tracking-[.06em] px-2.5 py-[3px] rounded-full"
+            :style="log.status === 'UP' ? 'background:rgba(52,211,153,.13);color:#34d399' : 'background:rgba(248,113,113,.13);color:#f87171'">{{ log.status }}</span>
+          <span class="justify-self-end text-[13px] font-mono text-[#6b7183]">{{ log.responseTime || '—' }}ms</span>
+        </div>
+        <p v-if="!history.length" class="text-center py-11 text-[#6b7183] text-[13px]">{{ t.noHistory }}</p>
       </div>
     </div>
   </div>

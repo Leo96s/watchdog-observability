@@ -8,23 +8,17 @@ const props = defineProps(['service', 'isOpen']);
 const emit = defineEmits(['close', 'updated']);
 
 const methodOptions = [
-  { label: 'GET', value: 'GET' },
-  { label: 'POST', value: 'POST' },
-  { label: 'PUT', value: 'PUT' },
-  { label: 'HEAD', value: 'HEAD' },
+  { label: 'GET', value: 'GET' }, { label: 'POST', value: 'POST' },
+  { label: 'PUT', value: 'PUT' }, { label: 'HEAD', value: 'HEAD' },
 ];
 
 const form = ref({ name: '', url: '', method: 'GET', expectedStatus: 200, headers: '' });
 const loading = ref(false);
-const loadingDetails = ref(false);
 const error = ref('');
 
-// The service list only carries the lightweight status shape; fetch the
-// full record (method/expectedStatus/headers) when the modal opens.
 watch(() => props.isOpen, async (open) => {
   if (!open || !props.service) return;
   error.value = '';
-  loadingDetails.value = true;
   try {
     const res = await api.get(`/services/${props.service.id}`);
     form.value = {
@@ -34,26 +28,16 @@ watch(() => props.isOpen, async (open) => {
       expectedStatus: res.data.expectedStatus || 200,
       headers: res.data.headers ? JSON.stringify(res.data.headers, null, 2) : '',
     };
-  } catch (err) {
-    error.value = 'Failed to load service details';
-  } finally {
-    loadingDetails.value = false;
-  }
+  } catch { error.value = 'Failed to load service details'; }
 });
 
 const handleSave = async () => {
   error.value = '';
-
   let parsedHeaders;
   if (form.value.headers.trim()) {
-    try {
-      parsedHeaders = JSON.parse(form.value.headers);
-    } catch {
-      error.value = 'Headers must be valid JSON';
-      return;
-    }
+    try { parsedHeaders = JSON.parse(form.value.headers); }
+    catch { error.value = 'Headers must be valid JSON'; return; }
   }
-
   loading.value = true;
   try {
     await api.patch(`/services/${props.service.id}`, {
@@ -67,66 +51,50 @@ const handleSave = async () => {
     emit('close');
   } catch (err) {
     error.value = err.response?.data?.error || 'Failed to update service';
-  } finally {
-    loading.value = false;
-  }
+  } finally { loading.value = false; }
 };
 </script>
 
 <template>
-  <div v-if="isOpen" @click.stop class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
-    <div
-      class="bg-[#1a1a1a] w-full max-w-md rounded-[3rem] border border-white/10 p-12 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6)] animate-in fade-in zoom-in duration-300">
+  <div v-if="isOpen" @click="$emit('close')" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md wd-overlay-in">
+    <div @click.stop class="w-full max-w-[460px] rounded-[26px] border border-white/[.09] p-8 wd-modal-in"
+      style="background: linear-gradient(165deg,#161b26,#111520); box-shadow: 0 40px 80px -20px rgba(0,0,0,.8);">
 
-      <div class="flex justify-between items-center mb-8 ml-4 mt-5">
-        <h2 class="text-white font-bold text-lg flex items-center gap-2">
-          <Pencil class="text-[#3b82f6]" :size="20" /> Edit Service
-        </h2>
-        <button @click.stop="$emit('close')" class="text-gray-500 hover:text-white mr-4">
-          <X :size="20" />
-        </button>
+      <div class="flex items-center justify-between mb-[22px]">
+        <h2 class="m-0 text-[19px] font-extrabold flex items-center gap-2.5"><Pencil :size="20" class="text-[#60a5fa]" />Editar serviço</h2>
+        <button @click="$emit('close')" class="w-[34px] h-[34px] border-none rounded-[10px] bg-white/[.05] text-[#8a90a0] flex items-center justify-center cursor-pointer transition-all hover:bg-[#f8717129] hover:text-[#f87171]"><X :size="18" /></button>
       </div>
 
-      <div class="space-y-4 ml-4 mr-4">
+      <div class="flex flex-col gap-4">
         <div>
-          <label class="text-gray-500 text-[10px] uppercase font-bold ml-2">Name</label>
-          <input v-model="form.name"
-            class="w-full bg-[#2a2a2a] text-white rounded-2xl p-4 border-none outline-none mt-1 focus:ring-1 focus:ring-[#3b82f6]" />
+          <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Nome</label>
+          <input v-model="form.name" class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] px-[15px] py-[13px] text-[#e8eaf0] text-sm outline-none transition-colors focus:border-[#3b82f699]" />
         </div>
-
         <div>
-          <label class="text-gray-500 text-[10px] uppercase font-bold ml-2">URL</label>
-          <input v-model="form.url"
-            class="w-full bg-[#2a2a2a] text-white rounded-2xl p-4 border-none outline-none mt-1 focus:ring-1 focus:ring-[#3b82f6]" />
+          <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">URL</label>
+          <input v-model="form.url" class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] px-[15px] py-[13px] text-[#e8eaf0] font-mono text-[13px] outline-none transition-colors focus:border-[#3b82f699]" />
         </div>
-
         <div class="flex gap-3">
           <div class="flex-1">
-            <label class="text-gray-500 text-[10px] uppercase font-bold ml-2">Method</label>
-            <BaseSelect v-model="form.method" :options="methodOptions" class="mt-1" />
+            <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Método</label>
+            <div class="mt-[7px]"><BaseSelect v-model="form.method" :options="methodOptions" /></div>
           </div>
           <div class="w-32">
-            <label class="text-gray-500 text-[10px] uppercase font-bold ml-2">Expected status</label>
-            <input v-model="form.expectedStatus" type="number"
-              class="w-full bg-[#2a2a2a] text-white rounded-2xl p-4 border-none outline-none mt-1 focus:ring-1 focus:ring-[#3b82f6]" />
+            <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Status esperado</label>
+            <input v-model="form.expectedStatus" type="number" class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] px-[15px] py-[13px] text-[#e8eaf0] text-sm outline-none focus:border-[#3b82f699]" />
           </div>
         </div>
-
         <div>
-          <label class="text-gray-500 text-[10px] uppercase font-bold ml-2">Headers (JSON, optional)</label>
+          <label class="text-[10px] tracking-[.12em] uppercase text-[#7c8296] font-bold ml-1">Headers (JSON, opcional)</label>
           <textarea v-model="form.headers" rows="3" placeholder='{ "Authorization": "Bearer ..." }'
-            class="w-full bg-[#2a2a2a] text-white rounded-2xl p-4 border-none outline-none mt-1 focus:ring-1 focus:ring-[#3b82f6] font-mono text-xs"></textarea>
+            class="w-full mt-[7px] bg-[#0e131c] border border-white/[.08] rounded-[13px] p-4 text-[#e8eaf0] outline-none text-xs font-mono focus:border-[#3b82f699]"></textarea>
         </div>
-
-        <p v-if="error" class="text-red-500 text-xs text-center">{{ error }}</p>
-
-        <div class="flex justify-center w-full mt-6 mb-6">
-          <button @click="handleSave" :disabled="loading"
-            class="mx-auto px-8 py-2 bg-[#3b82f6]! text-white rounded-xl font-bold hover:bg-[#2563eb] transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-[#3b82f6]/20 active:scale-95 disabled:opacity-50">
-            <Save :size="18" v-if="!loading" />
-            {{ loading ? 'Saving...' : 'Save changes' }}
-          </button>
-        </div>
+        <p v-if="error" class="text-[#f87171] text-xs text-center">{{ error }}</p>
+        <button @click="handleSave" :disabled="loading"
+          class="mt-1.5 w-full bg-gradient-to-br from-[#3b82f6] to-[#2563eb] text-white border-none rounded-[13px] py-3.5 font-bold text-sm cursor-pointer transition-transform hover:-translate-y-px active:scale-[.98] disabled:opacity-50 flex items-center justify-center gap-2"
+          style="box-shadow: 0 10px 24px -10px rgba(59,130,246,.9);">
+          <Save :size="18" v-if="!loading" />{{ loading ? 'A guardar…' : 'Guardar alterações' }}
+        </button>
       </div>
     </div>
   </div>

@@ -1,12 +1,46 @@
 @import "tailwindcss";
 
 @layer base {
-  button {
-    background-color: unset;
-  }
+  button { background-color: unset; }
 }
 
 html, body, #app {
   height: 100%;
-  background-color: #f3f4f6; 
+  background-color: #0a0c11;
+  color: #e8eaf0;
+  font-family: 'Manrope', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+a { color: #60a5fa; text-decoration: none; }
+a:hover { color: #93c5fd; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 8px; border: 2px solid #0a0c11; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.16); }
+
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+@keyframes wd-spin { to { transform: rotate(360deg); } }
+@keyframes wd-shimmer { 100% { background-position: -200% 0; } }
+@keyframes wd-cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes wd-barIn { from { transform: scaleY(.12); opacity: .3; } to { transform: scaleY(1); opacity: 1; } }
+@keyframes wd-rowIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+@keyframes wd-pulseUp { 0% { box-shadow: 0 0 0 0 rgba(52,211,153,.55); } 70% { box-shadow: 0 0 0 7px rgba(52,211,153,0); } 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); } }
+@keyframes wd-pulseDown { 0% { box-shadow: 0 0 0 0 rgba(248,113,113,.55); } 70% { box-shadow: 0 0 0 7px rgba(248,113,113,0); } 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0); } }
+@keyframes wd-overlayIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wd-modalIn { from { opacity: 0; transform: scale(.94) translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes wd-toastIn { from { opacity: 0; transform: translate(-50%,-16px) scale(.94); } to { opacity: 1; transform: translate(-50%,0) scale(1); } }
+@keyframes wd-flash { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes wd-blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+.wd-pulse-up { animation: wd-pulseUp 2s ease-out infinite; }
+.wd-pulse-down { animation: wd-pulseDown 2s ease-out infinite; }
+.wd-card-in { animation: wd-cardIn .55s cubic-bezier(.2,.7,.2,1) both; }
+.wd-row-in { animation: wd-rowIn .3s ease both; }
+.wd-modal-in { animation: wd-modalIn .32s cubic-bezier(.2,.8,.2,1); }
+.wd-overlay-in { animation: wd-overlayIn .25s ease; }
+.wd-toast-in { animation: wd-toastIn .4s cubic-bezier(.18,.89,.32,1.28); }
+.wd-blink { animation: wd-blink 1.6s ease-in-out infinite; }
+.wd-flash { animation: wd-flash .8s ease; }
+.wd-shimmer { background: linear-gradient(90deg,#1c222e 25%,#2a3242 37%,#1c222e 63%); background-size: 200% 100%; animation: wd-shimmer 1.4s linear infinite; }
